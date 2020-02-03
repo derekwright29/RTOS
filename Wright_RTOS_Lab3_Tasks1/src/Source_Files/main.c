@@ -55,6 +55,8 @@
 #include "capsense.h"
 #include "lab3.h"
 
+#include "../cpu_cfg_local.h"
+
 /*
 *********************************************************************************************************
 *********************************************************************************************************
@@ -223,9 +225,10 @@ static void CapsenseTask()
 {
 	RTOS_ERR err;
 	//init capsense
-	CAPSENSE_Init();
+
 	while(1)
 	{
+		CAPSENSE_Init();
 		slide = sample_capsense();
 		OSTimeDly(100u, OS_OPT_TIME_PERIODIC, &err);
 		/*   Check error code.                           */
@@ -245,20 +248,24 @@ static void LEDTask()
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 	}
 }
-
+RTOS_ERR  glob_err;
 static  void  MainStartTask (void  *p_arg)
 {
-    RTOS_ERR  err;
 
-
+	CPU_CFG_INT_DIS_MEAS_EN
     PP_UNUSED_PARAM(p_arg);                                     /* Prevent compiler warning.                            */
 
 #ifdef CPU_CFG_INT_DIS_MEAS_EN
-    CPU_IntDisMeasMaxCurReset();                                /* Initialize interrupts disabled measurement.          */
+//    CPU_IntDisMeasMaxCurReset();                                /* Initialize interrupts disabled measurement.          */
+//    OSStatInit();
+//    OSStatTaskCPUUsageInit();
+//    CPU_IntDisMeasMaxCurReset();
+    OSStatReset(&glob_err);
+    APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(glob_err) == RTOS_ERR_NONE), 1);
 #endif
 
-    Common_Init(&err);                                          /* Call common module initialization example.           */
-    APP_RTOS_ASSERT_CRITICAL(err.Code == RTOS_ERR_NONE, ;);
+    Common_Init(&glob_err);                                          /* Call common module initialization example.           */
+    APP_RTOS_ASSERT_CRITICAL(glob_err.Code == RTOS_ERR_NONE, ;);
 
     BSP_OS_Init();                                              /* Initialize the BSP. It is expected that the BSP ...  */
                                                                 /* ... will register all the hardware controller to ... */
@@ -276,7 +283,8 @@ static  void  MainStartTask (void  *p_arg)
                           0u,
                           DEF_NULL,
                          (OS_OPT_TASK_STK_CLR),
-                         &err);
+                         &glob_err);
+    APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(glob_err) == RTOS_ERR_NONE), 1);
         OSTaskCreate(&CapsenseTaskTCB,                          /* Create the Capsense Task.                               */
                          "Capsense Task",
                           CapsenseTask,
@@ -289,7 +297,8 @@ static  void  MainStartTask (void  *p_arg)
                           0u,
                           DEF_NULL,
                          (OS_OPT_TASK_STK_CLR),
-                         &err);
+                         &glob_err);
+        APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(glob_err) == RTOS_ERR_NONE), 1);
 
         OSTaskCreate(&LEDTaskTCB,                          /* Create the LED Task.                               */
                          "LED Task",
@@ -303,5 +312,12 @@ static  void  MainStartTask (void  *p_arg)
                           0u,
                           DEF_NULL,
                          (OS_OPT_TASK_STK_CLR),
-                         &err);
+                         &glob_err);
+        APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(glob_err) == RTOS_ERR_NONE), 1);
+        while(1)
+        {
+        	OSTimeDly(100,OS_OPT_TIME_DLY, &glob_err);
+        	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(glob_err) == RTOS_ERR_NONE), 1);
+
+        }
 }

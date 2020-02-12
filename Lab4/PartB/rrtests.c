@@ -26,12 +26,14 @@ CTEST_SETUP(roundrobin) {
 
 /**
  * This tests the tasks initialize properly, by checking PID and execution times
+ * It also checks that no work was left on the table, by confirming left_to_exectue = 0
  * */
 CTEST2(roundrobin, test_process) {
     int execution[] = {1, 2, 3, 4};
     for (int i = 0; i < data->size; i++) {
         ASSERT_EQUAL(i, (int)data->task[i].process_id);
         ASSERT_EQUAL(execution[i], (int)data->task[i].execution_time);
+        ASSERT_EQUAL(0, data->task[i].left_to_execute);
     }
 }
 CTEST2(roundrobin, test_wait) {
@@ -68,9 +70,16 @@ CTEST_SETUP(roundrobin2) {
     round_robin(data->task, quantum, data->size);
 }
 
-CTEST2(roundrobin2, test_process) {
+/**
+ * This tests the tasks initialize properly, by checking PID and execution times
+ * It also checks that no work was left on the table, by confirming left_to_exectue = 0
+ * */
+CTEST2(roundrobin2, test_init) {
+    int execution[] = {5, 1, 3, 10, 3};
     for (int i = 0; i < data->size; i++) {
         ASSERT_EQUAL(i, (int)data->task[i].process_id);
+        ASSERT_EQUAL(execution[i], (int)data->task[i].execution_time);
+        ASSERT_EQUAL(0, data->task[i].left_to_execute);
     }
 }
 CTEST2(roundrobin2, test_wait) {
@@ -111,12 +120,14 @@ CTEST_SETUP(roundrobin3) {
 /**
  * This tests that negative values are initialized correctly
  *  Because there is no negative time, I set it to 0.
+ * PID and left_to_execute are also checked
  * */
 CTEST2(roundrobin3, test_process) {
     int execution[] = {0, 1, 3, 0, 4};
     for (int i = 0; i < data->size; i++) {
         ASSERT_EQUAL(i, (int)data->task[i].process_id);
         ASSERT_EQUAL(execution[i], (int)data->task[i].execution_time);
+        ASSERT_EQUAL(0, data->task[i].left_to_execute);
     }
 }
 /**
@@ -126,7 +137,6 @@ CTEST2(roundrobin3, test_process) {
 CTEST2(roundrobin3, test_wait) {
     int wait_times[] = {0, 0, 3, 3, 4};
     for (int i = 0; i < data->size; i++) {
-        printf("\nWait time for Process %d is: %d\n", data->task[i].process_id, data->task[i].waiting_time);
         ASSERT_EQUAL(wait_times[i], data->task[i].waiting_time);
     }
 }
@@ -138,7 +148,6 @@ CTEST2(roundrobin3, test_wait) {
 CTEST2(roundrobin3, test_turnaround){
     int turn_time[] ={0,1,6,3,8};
     for (int i = 0; i < data->size; i++) {
-        printf("turnaround time is: %d\n",data->task[i].turnaround_time);
         ASSERT_EQUAL(turn_time[i], data->task[i].turnaround_time);
     }
 }
@@ -169,6 +178,7 @@ CTEST2(roundrobin4, test_process) {
     for (int i = 0; i < data->size; i++) {
         ASSERT_EQUAL(i, (int)data->task[i].process_id);
         ASSERT_EQUAL(execution[i], (int)data->task[i].execution_time);
+        ASSERT_EQUAL(0, data->task[i].left_to_execute);
     }
 }
 /**
@@ -219,6 +229,7 @@ CTEST2(roundrobin5, test_process) {
     for (int i = 0; i < data->size; i++) {
         ASSERT_EQUAL(i, (int)data->task[i].process_id);
         ASSERT_EQUAL(execution[i], (int)data->task[i].execution_time);
+        ASSERT_EQUAL(0, data->task[i].left_to_execute);
     }
 }
 /**

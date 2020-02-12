@@ -40,10 +40,14 @@ CTEST2(firstcomefirstserved, test_init) {
  * This test confirms wait times are correct
  * I have hard-coded the expected values, calculated by hand
  * wait time is the same as turn time - execution time
+ * 
+ * This test also confirms the average wait time is correct.
+ * I've only included this averaging test once, because it is so simple
  */
 CTEST2(firstcomefirstserved, test_waitingtime) {
     for (int i = 0; i < data->size; i++) {
         ASSERT_EQUAL(i, data->task[i].waiting_time);
+        ASSERT_EQUAL(calculate_average_wait_time(data->task, data->size), (float)4.0);
     }
 }
 
@@ -51,10 +55,14 @@ CTEST2(firstcomefirstserved, test_waitingtime) {
  * This test confirms turnaround times are correct
  * I have hard-coded the expected values, calculated by hand
  * This value is always execution time + wait time.
+ * 
+ * This test also confirms the average turnaround time is correct.
+ * I've only included this averaging test once, because it is so simple
  */
 CTEST2(firstcomefirstserved, test_turnaround){
     for (int i = 0; i < data->size; i++) {
         ASSERT_EQUAL(i+1, data->task[i].turnaround_time);
+        ASSERT_EQUAL(calculate_average_turn_around_time(data->task, data->size), (float)5.0);
     }
 }
 

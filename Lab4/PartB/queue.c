@@ -41,24 +41,30 @@ void push(struct node_t** head, struct task_t* task) {
     struct node_t *new_node = create_new_node(task);
     struct node_t *cur_node = *head;
     struct node_t *prev_node;
-    int length = 0;
+    // length helps to know if the queue is empty
+    // int length = 0;
+    if (is_empty(head)) {
+        *head = new_node;
+        return;
+    }
     //traverse the queue
     while (cur_node != NULL)
     {
-        length++;
+        // length++;
         prev_node = cur_node;
         cur_node = cur_node->next;
     }
     //set last entry to the new_node;
-    if (length == 0)
-    {
-        // special case where we have to actually manipulate the double pointer passed in
-        *head = new_node;
-    }
-    else
-    {
-        prev_node->next = new_node;
-    }
+    prev_node->next = new_node;
+    // if (length == 0)
+    // {
+    //     // special case where we have to actually manipulate the double pointer passed in
+    //     *head = new_node;
+    // }
+    // else
+    // {
+    //     prev_node->next = new_node;
+    // }
         
 
 }

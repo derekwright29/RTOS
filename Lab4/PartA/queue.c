@@ -41,20 +41,16 @@ void pop(struct node_t** head) {
     free(old_head);
 }
 
-/**
+/*
  * Push needs to create a new node, populate it with task, and add it to the queue
  * Push needs to traverse the queue to find the end.
- * I wanted push to be able to handle (*head == NULL) because of my create_queue() function.
- * So, to accomplish this, I keep track of the cur_node, as well as the prev_node
- * Instead of, maybe, cur_node, next_node.
- * This allows me to set (*head)= new_node directly if (*head == NULL)
+ * I also wanted push to be able to handle (*head == NULL) because of my create_queue() function.
  * */
 void push(struct node_t** head, struct task_t* task) {
     struct node_t *new_node = create_new_node(task);
     struct node_t *cur_node = *head;
     struct node_t *prev_node;
-    // length helps to know if the queue is empty
-    // int length = 0;
+    // First check if we have an empty queue. If so, we're done.
     if (is_empty(head)) {
         *head = new_node;
         return;
@@ -62,25 +58,14 @@ void push(struct node_t** head, struct task_t* task) {
     //traverse the queue
     while (cur_node != NULL)
     {
-        // length++;
         prev_node = cur_node;
         cur_node = cur_node->next;
     }
     //set last entry to the new_node;
     prev_node->next = new_node;
-    // if (length == 0)
-    // {
-    //     // special case where we have to actually manipulate the double pointer passed in
-    //     *head = new_node;
-    // }
-    // else
-    // {
-    //     prev_node->next = new_node;
-    // }
-        
-
 }
 
+// simple boolean function. If *head == NULL, that means there is no node, no data.
 int is_empty(struct node_t** head) {
     return ((*head) == NULL);
 }
@@ -91,13 +76,13 @@ void empty_queue(struct node_t** head) {
         return;
     }
     struct node_t *cur_head = *head, *dummy_head; 
-    //invalidate head's data, thereby emptying the queue
-    (*head)->task = NULL;
-    (*head)->next = NULL;
+    // Free each node pointed to by head.
     while (!is_empty(&cur_head))
     {
         dummy_head = cur_head;
         pop(&cur_head);
         free(dummy_head);
     }
+    //other functions expect (*head) to be NULL when empty. This closes the loop there.
+    (*head) = NULL;
 }

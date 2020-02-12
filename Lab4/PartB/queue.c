@@ -29,20 +29,13 @@ void pop(struct node_t** head) {
     free(old_head);
 }
 
-void recycle(struct node_t** head)
-{
-    struct node_t* old_head = (*head);
-    struct node_t* new_head = (*head)->next;
-    (*head) = new_head;
-    push(head, old_head->task);
-}
+
 
 void push(struct node_t** head, struct task_t* task) {
     struct node_t *new_node = create_new_node(task);
     struct node_t *cur_node = *head;
     struct node_t *prev_node;
-    // length helps to know if the queue is empty
-    // int length = 0;
+    
     if (is_empty(head)) {
         *head = new_node;
         return;
@@ -50,23 +43,11 @@ void push(struct node_t** head, struct task_t* task) {
     //traverse the queue
     while (cur_node != NULL)
     {
-        // length++;
         prev_node = cur_node;
         cur_node = cur_node->next;
     }
     //set last entry to the new_node;
     prev_node->next = new_node;
-    // if (length == 0)
-    // {
-    //     // special case where we have to actually manipulate the double pointer passed in
-    //     *head = new_node;
-    // }
-    // else
-    // {
-    //     prev_node->next = new_node;
-    // }
-        
-
 }
 
 int is_empty(struct node_t** head) {
@@ -91,4 +72,18 @@ void empty_queue(struct node_t** head) {
         pop(&cur_head);
         free(dummy_head);
     }  
+}
+
+/**
+ * We couldn't add functions to oru queue API, but I would've added this one.
+ * It simply performs the job of putting a slow task to the back of the queue
+ * without free-ing and reallocating, which is what using pop() would force.
+ * That's because pop() frees the node we are popping.
+ * */
+void recycle(struct node_t** head)
+{
+    struct node_t* old_head = (*head);
+    struct node_t* new_head = (*head)->next;
+    (*head) = new_head;
+    push(head, old_head->task);
 }

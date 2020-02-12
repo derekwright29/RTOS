@@ -6,8 +6,8 @@ void init(struct task_t *task, int *execution, int size) {
     for (int i = 0; i < size; i++)
     {
         task[i].process_id = i;
-        task[i].execution_time = execution[i];
-        task[i].left_to_execute = execution[i]; // left to execute == execution time on init
+        task[i].execution_time = execution[i] < 0 ? 0: execution[i]; // handle negative times, set to 0
+        task[i].left_to_execute = execution[i] < 0 ? 0: execution[i]; // left to execute == execution time on init
     }
 }
 
@@ -43,6 +43,7 @@ void round_robin(struct task_t *task, int quantum, int size) {
         {
             printf("\nProcess ID %d is done. Popping\n", cur_task->process_id);
             time_elapsed += cur_task->left_to_execute;
+            printf("\nTime elapsed %d\n", time_elapsed);
             cur_task->left_to_execute = 0;
             int executed_so_far = cur_task->execution_time;
             cur_task->waiting_time = time_elapsed - executed_so_far;

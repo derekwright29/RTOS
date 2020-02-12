@@ -6,7 +6,7 @@ void init(struct task_t *task, int *execution, int size) {
     for (int i = 0; i < size; i++)
     {
         task[i].process_id = i;
-        task[i].execution_time = execution[i];
+        task[i].execution_time = execution[i] < 0 ? 0: execution[i];
     }
 }
 

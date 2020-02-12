@@ -2,6 +2,7 @@
 #include "queue.h"
 #include <stdio.h>
 
+//The init function will initalize the execution_time and process_id values for each task
 void init(struct task_t *task, int *execution, int size) {
     for (int i = 0; i < size; i++)
     {
@@ -10,12 +11,18 @@ void init(struct task_t *task, int *execution, int size) {
     }
 }
 
+/*This is the FCFS algorithm. When this function returns, 
+ * the task buffer will be updated with wait time and turnaround times.
+ * A queue is initialized in this function, and at the end the queue
+ * is empty, meaning there are no tasks in the queue, and all pointers
+ * malloc during its initialization have been freed.
+ * 
+*/
 void first_come_first_served(struct task_t *task, int size) {
     int time_elapsed = 0;
-    // Hints:
-    // 1. Create Queue based on the task array
+    // Create Queue based on the task array
     struct node_t* head = create_queue(task, size);
-    // 2. Pop off the front item until there are no more tasks
+    // Pop off the front item until there are no more tasks
     printf("\nIn FCFS \n" );
     int i = 0;
     while (!is_empty(&head)) 

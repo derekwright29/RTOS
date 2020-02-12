@@ -36,19 +36,31 @@ CTEST2(roundrobin, test_process) {
         ASSERT_EQUAL(0, data->task[i].left_to_execute);
     }
 }
+/**
+ * This tests the tasks wait times were updated properly
+ * I calculated them by hand and check the data against what I expect.
+ * 
+ * Also, the average function is called and checked. I only do this in this test case.
+ * */
 CTEST2(roundrobin, test_wait) {
     int wait_times[] = {0, 1, 5, 6};
     for (int i = 0; i < data->size; i++) {
-        printf("\nWait time for Process %d is: %d\n", data->task[i].process_id, data->task[i].waiting_time);
         ASSERT_EQUAL(wait_times[i], data->task[i].waiting_time);
+        ASSERT_EQUAL(3.0, calculate_average_wait_time(data->task, data->size));
     }
 }
 
+/**
+ * This tests the tasks turn times were updated properly
+ * I calculated them by hand and check the data against what I expect.
+ * 
+ * Also, the average function is called and checked. I only do this in this test case.
+ * */
 CTEST2(roundrobin, test_turnaround){
     int turn_time[] ={1,3,8,10};
     for (int i = 0; i < data->size; i++) {
-        printf("turnaround time is: %d\n",data->task[i].turnaround_time);
         ASSERT_EQUAL(turn_time[i], data->task[i].turnaround_time);
+        ASSERT_EQUAL((float)5.5, calculate_average_turn_around_time(data->task, data->size));
     }
 }
 
@@ -82,18 +94,28 @@ CTEST2(roundrobin2, test_init) {
         ASSERT_EQUAL(0, data->task[i].left_to_execute);
     }
 }
+/**
+ * This tests the tasks wait times were updated properly
+ * I calculated them by hand and check the data against what I expect.
+ * 
+ * Also, the average function is called and checked. I only do this in this test case.
+ * */
 CTEST2(roundrobin2, test_wait) {
     int wait_times[] = {11, 2, 9, 12, 12};
     for (int i = 0; i < data->size; i++) {
-        printf("\nWait time for Process %d is: %d\n", data->task[i].process_id, data->task[i].waiting_time);
         ASSERT_EQUAL(wait_times[i], data->task[i].waiting_time);
     }
 }
 
+/**
+ * This tests the tasks turn times were updated properly
+ * I calculated them by hand and check the data against what I expect.
+ * 
+ * Also, the average function is called and checked. I only do this in this test case.
+ * */
 CTEST2(roundrobin2, test_turnaround){
     int turn_time[] ={16,3,12,22,15};
     for (int i = 0; i < data->size; i++) {
-        printf("turnaround time is: %d\n",data->task[i].turnaround_time);
         ASSERT_EQUAL(turn_time[i], data->task[i].turnaround_time);
     }
 }
@@ -187,7 +209,6 @@ CTEST2(roundrobin4, test_process) {
 CTEST2(roundrobin4, test_wait) {
     int wait_times[] = {0, 17, 5, 18, 13};
     for (int i = 0; i < data->size; i++) {
-        printf("\nWait time for Process %d is: %d\n", data->task[i].process_id, data->task[i].waiting_time);
         ASSERT_EQUAL(wait_times[i], data->task[i].waiting_time);
     }
 }
@@ -198,7 +219,6 @@ CTEST2(roundrobin4, test_wait) {
 CTEST2(roundrobin4, test_turnaround){
     int turn_time[] ={0, 28, 8, 38, 17};
     for (int i = 0; i < data->size; i++) {
-        printf("turnaround time is: %d\n",data->task[i].turnaround_time);
         ASSERT_EQUAL(turn_time[i], data->task[i].turnaround_time);
     }
 }
@@ -238,7 +258,6 @@ CTEST2(roundrobin5, test_process) {
 CTEST2(roundrobin5, test_wait) {
     int wait_times[] = {0, 3, 5, 2, 6};
     for (int i = 0; i < data->size; i++) {
-        printf("Wait time for Process %d is: %d\n", data->task[i].process_id, data->task[i].waiting_time);
         ASSERT_EQUAL(wait_times[i], data->task[i].waiting_time);
     }
 }
@@ -249,7 +268,6 @@ CTEST2(roundrobin5, test_wait) {
 CTEST2(roundrobin5, test_turnaround){
     int turn_time[] ={0, 5, 8, 3, 10};
     for (int i = 0; i < data->size; i++) {
-        printf("turnaround time is: %d\n",data->task[i].turnaround_time);
         ASSERT_EQUAL(turn_time[i], data->task[i].turnaround_time);
     }
 }

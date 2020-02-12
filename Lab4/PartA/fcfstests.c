@@ -1,10 +1,9 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include "ctest.h"
 #include "fcfs.h"
 
 /****************************************************************************** / 
- *          FCFS TEST SUITE. There are 3 test cases, 9 total tests.
+ *          FCFS TEST SUITE. There are 4 test cases, 12 total tests.
  ****************************************************************************** / */
 
 
@@ -113,7 +112,6 @@ CTEST2(firstcomefirstserved2, test_waitingtime) {
 CTEST2(firstcomefirstserved2, test_turnaround){
     int turn_time[] ={1,3,6,10,15};
     for (int i = 0; i < data->size; i++) {
-        printf("turnaround time is: %d\n",data->task[i].waiting_time);
         ASSERT_EQUAL(turn_time[i], data->task[i].turnaround_time);
     }
 }
@@ -165,7 +163,6 @@ CTEST2(firstcomefirstserved3, test_waitingtime) {
 CTEST2(firstcomefirstserved3, test_turnaround){
     int turn_time[] ={5,6,9,19,22};
     for (int i = 0; i < data->size; i++) {
-        printf("turnaround time is: %d\n",data->task[i].waiting_time);
         ASSERT_EQUAL(turn_time[i], data->task[i].turnaround_time);
     }
 }
@@ -205,7 +202,6 @@ CTEST2(firstcomefirstserved4, test_process) {
 CTEST2(firstcomefirstserved4, test_wait) {
     int wait_times[] = {0, 0, 1, 4, 4};
     for (int i = 0; i < data->size; i++) {
-        printf("\nWait time for Process %d is: %d\n", data->task[i].process_id, data->task[i].waiting_time);
         ASSERT_EQUAL(wait_times[i], data->task[i].waiting_time);
     }
 }
@@ -217,7 +213,6 @@ CTEST2(firstcomefirstserved4, test_wait) {
 CTEST2(firstcomefirstserved4, test_turnaround){
     int turn_time[] ={0,1,4,4,8};
     for (int i = 0; i < data->size; i++) {
-        printf("turnaround time is: %d\n",data->task[i].turnaround_time);
         ASSERT_EQUAL(turn_time[i], data->task[i].turnaround_time);
     }
 }

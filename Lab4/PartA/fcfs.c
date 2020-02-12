@@ -16,7 +16,11 @@ void init(struct task_t *task, int *execution, int size) {
  * the task buffer will be updated with wait time and turnaround times.
  * A queue is initialized in this function, and at the end the queue
  * is empty, meaning there are no tasks in the queue, and all pointers
- * malloc during its initialization have been freed.
+ * malloc'd during its initialization have been freed.
+ * 
+ * The operation of this algorithm is simple. The first task
+ * in the queue takes as long as it needs to execute, then is 
+ * removed from the queue and the next task served.
 */
 void first_come_first_served(struct task_t *task, int size) {
     int time_elapsed = 0;

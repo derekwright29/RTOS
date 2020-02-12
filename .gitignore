@@ -10,3 +10,8 @@ SLSTK*/
 _backup_*
 imported_project_report.html
 *.zip
+*.o
+Lab4/Part?/LICENSE
+Lab4/PartA/firstcomefirstserved
+Lab4/PartB/roundrobin
+Lab4/PartB/testing.txt

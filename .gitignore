@@ -11,7 +11,10 @@ _backup_*
 imported_project_report.html
 *.zip
 *.o
-Lab4/Part?/LICENSE
+Lab?/Part?/LICENSE
 Lab4/PartA/firstcomefirstserved
 Lab4/PartB/roundrobin
 Lab4/PartB/testing.txt
+Lab5/ideas.txt
+Lab5/PartC/shortestjobfirst
+Lab5/PartD/priority

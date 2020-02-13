@@ -43,26 +43,35 @@ void pop(struct node_t** head) {
 
 /*
  * Push needs to create a new node, populate it with task, and add it to the queue
- * Push needs to traverse the queue to find the end.
+ * Push needs to traverse the queue to find the correct place to insert the new task.
+ * This is based on SJF implementation
  * I also wanted push to be able to handle (*head == NULL) because of my create_queue() function.
  * */
 void push(struct node_t** head, struct task_t* task) {
     struct node_t *new_node = create_new_node(task);
     struct node_t *cur_node = *head;
     struct node_t *prev_node;
+    int new_exec = task->execution_time;
     // First check if we have an empty queue. If so, we're done.
     if (is_empty(head)) {
         *head = new_node;
         return;
     }
     //traverse the queue
-    while (cur_node != NULL)
+    while (cur_node != NULL && (peek(&cur_node)->execution_time < new_exec))
     {
         prev_node = cur_node;
         cur_node = cur_node->next;
     }
-    //set last entry to the new_node;
-    prev_node->next = new_node;
+    if (cur_node == NULL)
+        //set last entry to the new_node;
+        prev_node->next = new_node;
+    else {
+        //insert new_node
+        struct node_t * temp = prev_node->next;
+        prev_node->next = new_node;
+        new_node->next = temp;
+    }
 }
 
 // simple boolean function. If *head == NULL, that means there is no node, no data.

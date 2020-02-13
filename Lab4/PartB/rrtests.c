@@ -46,7 +46,7 @@ CTEST2(roundrobin, test_wait) {
     int wait_times[] = {0, 1, 5, 6};
     for (int i = 0; i < data->size; i++) {
         ASSERT_EQUAL(wait_times[i], data->task[i].waiting_time);
-        ASSERT_EQUAL(3.0, calculate_average_wait_time(data->task, data->size));
+        ASSERT_EQUAL(((float)3.0 == calculate_average_wait_time(data->task, data->size)), 1);
     }
 }
 
@@ -60,7 +60,7 @@ CTEST2(roundrobin, test_turnaround){
     int turn_time[] ={1,3,8,10};
     for (int i = 0; i < data->size; i++) {
         ASSERT_EQUAL(turn_time[i], data->task[i].turnaround_time);
-        ASSERT_EQUAL((float)5.5, calculate_average_turn_around_time(data->task, data->size));
+        ASSERT_EQUAL(((float)5.5 == calculate_average_turn_around_time(data->task, data->size)), 1);
     }
 }
 

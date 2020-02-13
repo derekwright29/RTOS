@@ -46,7 +46,7 @@ CTEST2(firstcomefirstserved, test_init) {
 CTEST2(firstcomefirstserved, test_waitingtime) {
     for (int i = 0; i < data->size; i++) {
         ASSERT_EQUAL(i, data->task[i].waiting_time);
-        ASSERT_EQUAL(calculate_average_wait_time(data->task, data->size), (float)4.0);
+        ASSERT_EQUAL(((float)4.0 == calculate_average_wait_time(data->task, data->size)), 1);
     }
 }
 
@@ -61,7 +61,7 @@ CTEST2(firstcomefirstserved, test_waitingtime) {
 CTEST2(firstcomefirstserved, test_turnaround){
     for (int i = 0; i < data->size; i++) {
         ASSERT_EQUAL(i+1, data->task[i].turnaround_time);
-        ASSERT_EQUAL(calculate_average_turn_around_time(data->task, data->size), (float)5.0);
+        ASSERT_EQUAL(((float)5.0 == calculate_average_turn_around_time(data->task, data->size)), 1);
     }
 }
 

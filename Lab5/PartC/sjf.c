@@ -15,11 +15,10 @@ void init(struct task_t *task, int *execution, int size) {
 void shortest_job_first(struct task_t *task, int size) {
     int time_elapsed = 0;
     printf("\nIn SJF setup \n");
-    // Hints:
-    // 1. Create Queue based on the task array in the correct order
+    // Create Queue based on the task array in the correct order
     struct node_t * head = create_queue(task, size);
-    // 2. Process each "task" until completion
-    // 3. You can process by popping items from the queue
+    // Process each "task" until completion
+    // You can process by popping items from the queue
     while(!is_empty(&head))
     {
         int i = 0;

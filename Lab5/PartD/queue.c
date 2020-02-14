@@ -46,23 +46,47 @@ void pop(struct node_t** head) {
  * Push needs to traverse the queue to find the end.
  * I also wanted push to be able to handle (*head == NULL) because of my create_queue() function.
  * */
+#define SORTING_VALUE      priority
 void push(struct node_t** head, struct task_t* task) {
     struct node_t *new_node = create_new_node(task);
     struct node_t *cur_node = *head;
-    struct node_t *prev_node;
+    struct node_t *prev_node = *head;
+    int new_sort = task->SORTING_VALUE, length = 0;
     // First check if we have an empty queue. If so, we're done.
     if (is_empty(head)) {
         *head = new_node;
         return;
     }
     //traverse the queue
-    while (cur_node != NULL)
+    while (cur_node != NULL )
     {
+        length++;
+        // printf("\nPush: Handling Process #%d\n", task->process_id);
+        if (peek(&cur_node)->SORTING_VALUE > new_sort) {
+            break;
+        }
         prev_node = cur_node;
         cur_node = cur_node->next;
     }
-    //set last entry to the new_node;
-    prev_node->next = new_node;
+    // printf("\nAfter Push while loop\n");
+    if (cur_node == NULL) {
+        // printf("\nPush: adding to end of queue\n");
+        //set last entry to the new_node;
+        prev_node->next = new_node;
+    }
+    else {
+        if(length == 1){
+            // printf("\nPush: Special case (length 1 reorder) \n");
+            *head = new_node;
+            (*head)->next = cur_node;
+            return;
+        }
+        // printf("\nPush: inserting into queue\n");
+        //insert new_node
+        struct node_t * temp = prev_node->next;
+        prev_node->next = new_node;
+        new_node->next = temp;
+    }
 }
 
 // simple boolean function. If *head == NULL, that means there is no node, no data.
@@ -89,5 +113,31 @@ void empty_queue(struct node_t** head) {
 
 
 void update_priority(struct node_t** head, int time) {
-    // Note: see hints in main.c and queue.h
+    struct node_t *cur_node = *head, *new_head;
+    int prio_changed_flag = 0;
+    //traverse the queue
+    while(!is_empty(&cur_node)) {
+        // printf("\nUpdate: Handling PID #%d\n", peek(&cur_node)->process_id);
+        if (peek(&cur_node)->execution_time == time) {
+            cur_node->task->priority *= 4;
+            printf("\nUpdate: multiplying PID #%d by 4: %d\n", peek(&cur_node)->process_id, peek(&cur_node)->priority);
+            prio_changed_flag = 1;
+        }
+        if (cur_node->task->left_to_execute == time) {
+            cur_node->task->priority *= 2;
+            printf("\nUpdate: multiplying PID #%d by 2: %d\n", peek(&cur_node)->process_id, peek(&cur_node)->priority);
+            prio_changed_flag = 1;
+        }
+        cur_node = cur_node->next;
+    }
+    if(prio_changed_flag){
+        new_head = create_queue(NULL, 0);
+        while(!is_empty(head)) {
+            push(&new_head, peek(head));
+            pop(head);
+        }
+        *head = new_head;
+        prio_changed_flag = 0;
+    }
+    
 }

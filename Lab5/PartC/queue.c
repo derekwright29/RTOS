@@ -48,11 +48,12 @@ void pop(struct node_t** head) {
  * This is based on SJF implementation
  * I also wanted push to be able to handle (*head == NULL) because of my create_queue() function.
  * */
+#define SORTING_VALUE      execution_time
 void push(struct node_t** head, struct task_t* task) {
     struct node_t *new_node = create_new_node(task);
     struct node_t *cur_node = *head;
     struct node_t *prev_node = *head;
-    int new_exec = task->execution_time;\
+    int new_sort = task->SORTING_VALUE;
     int length = 0;
     // First check if we have an empty queue. If so, we're done.
     if (is_empty(head)) {
@@ -65,7 +66,7 @@ void push(struct node_t** head, struct task_t* task) {
     {
         length++;
         printf("\nPush: Handling Process #%d\n", task->process_id);
-        if (peek(&cur_node)->execution_time > new_exec) {
+        if (peek(&cur_node)->SORTING_VALUE > new_sort) {
             break;
         }
         prev_node = cur_node;

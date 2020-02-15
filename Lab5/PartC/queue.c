@@ -9,7 +9,6 @@ struct node_t* create_queue(struct task_t* task, int size) {
     // push() handles the fact that head is NULL.
     for (int i = 0; i < size; i++)
     {
-        // printf("\nIn create loop #%d\n", i);
         push(&head, &task[i]);
     }
     return head;
@@ -45,8 +44,12 @@ void pop(struct node_t** head) {
 /*
  * Push needs to create a new node, populate it with task, and add it to the queue
  * Push needs to traverse the queue to find the correct place to insert the new task.
- * This is based on SJF implementation
  * I also wanted push to be able to handle (*head == NULL) because of my create_queue() function.
+ * I say that Push takes responsibility of sorting the queue. 
+ * I use SORTING_VALUE to indicate the member variable to sort by.
+ * In this, case it should be execution_time.
+ * The macro allows me to change nothing about Push to reimplement this for Priority
+ * I only need to change the macro.
  * */
 #define SORTING_VALUE      execution_time
 void push(struct node_t** head, struct task_t* task) {
@@ -70,13 +73,13 @@ void push(struct node_t** head, struct task_t* task) {
         prev_node = cur_node;
         cur_node = cur_node->next;
     }
-    // printf("\nAfter Push while loop\n");
     if (cur_node == NULL) {
         //set last entry to the new_node;
         prev_node->next = new_node;
     }
     else {
         if(length == 1){
+            //special case
             *head = new_node;
             (*head)->next = cur_node;
             return;

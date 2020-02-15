@@ -20,7 +20,6 @@ void shortest_job_first(struct task_t *task, int size) {
     // You can process by popping items from the queue
     while(!is_empty(&head))
     {
-        int i = 0;
         //get current task
         struct task_t *cur_task = peek(&head);
         //update wait and turn times

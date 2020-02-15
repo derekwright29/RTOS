@@ -82,10 +82,7 @@ CTEST2(shortestjobfirst2, test_init) {
 CTEST2(shortestjobfirst2, test_wait) {
     int wait_times[] = {2,0,7};
     for (int i = 0; i < data->size; i++) {
-        printf("\n wait time is: %d\n", data->task[i].waiting_time);
         ASSERT_EQUAL(wait_times[i], (int)data->task[i].waiting_time);
-        // printf("\nAvg wait time is: %f\n", calculate_average_wait_time(data->task, data->size));
-        // printf("\nAvg wait time is: %f\n", (float)4/3);
         ASSERT_EQUAL((float)calculate_average_wait_time(data->task, data->size) == (float)(3.0), 1);
 
     }
@@ -180,7 +177,6 @@ CTEST2(shortestjobfirst4, test_init) {
 CTEST2(shortestjobfirst4, test_wait) {
     int wait_times[] = {28, 2, 0, 4, 20, 1, 8, 14};
     for (int i = 0; i < data->size; i++) {
-        printf("\n wait time is: %d\n", data->task[i].waiting_time);
         ASSERT_EQUAL(wait_times[i], (int)data->task[i].waiting_time);
     }
 }
@@ -225,7 +221,6 @@ CTEST2(shortestjobfirst5, test_init) {
 CTEST2(shortestjobfirst5, test_wait) {
     int wait_times[] = {10,6,3,1,0,0,0};
     for (int i = 0; i < data->size; i++) {
-        printf("\n wait time is: %d\n", data->task[i].waiting_time);
         ASSERT_EQUAL(wait_times[i], (int)data->task[i].waiting_time);
     }
 }

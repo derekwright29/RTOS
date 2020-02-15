@@ -14,7 +14,6 @@ void init(struct task_t *task, int *execution, int size) {
 
 void shortest_job_first(struct task_t *task, int size) {
     int time_elapsed = 0;
-    printf("\nIn SJF setup \n");
     // Create Queue based on the task array in the correct order
     struct node_t * head = create_queue(task, size);
     // Process each "task" until completion
@@ -22,14 +21,11 @@ void shortest_job_first(struct task_t *task, int size) {
     while(!is_empty(&head))
     {
         int i = 0;
-        printf("\nIn SJF loop #%d\n", i++);
         //get current task
         struct task_t *cur_task = peek(&head);
         //update wait and turn times
         cur_task->turnaround_time = time_elapsed + cur_task->execution_time;
         cur_task->waiting_time = time_elapsed;
-        printf("\nProcess #%d has wait time %d\n", cur_task->process_id, cur_task->waiting_time);
-        printf("Process #%d has turn time %d\n", cur_task->process_id, cur_task->turnaround_time);
         time_elapsed += cur_task->execution_time;
         pop(&head);
     }

@@ -21,6 +21,7 @@ CTEST_SETUP(shortestjobfirst) {
     shortest_job_first(data->task, data->size);
 }
 
+//This tests that the PID and execution times were set properly.
 CTEST2(shortestjobfirst, test_init) {
     int execution[] = {2, 2, 5};
     for (int i = 0; i < data->size; i++) {
@@ -29,18 +30,19 @@ CTEST2(shortestjobfirst, test_init) {
     }
 }
 
+// This tests that the wait times were computed correctly. 
+// The test compares against values I calculated by hand.
 CTEST2(shortestjobfirst, test_wait) {
     int wait_times[] = {0,2,4};
     for (int i = 0; i < data->size; i++) {
-        printf("\n wait time is: %d\n", data->task[i].waiting_time);
         ASSERT_EQUAL(wait_times[i], (int)data->task[i].waiting_time);
-        // printf("\nAvg wait time is: %f\n", calculate_average_wait_time(data->task, data->size));
-        // printf("\nAvg wait time is: %f\n", (float)4/3);
         ASSERT_EQUAL((float)calculate_average_wait_time(data->task, data->size) == (float)(2.0), 1);
 
     }
 }
 
+// This tests that the turn times were computed correctly. 
+// The test compares against values I calculated by hand.
 CTEST2(shortestjobfirst, test_turn) {
     int turn_times[] = {2,4,9};
     for (int i = 0; i < data->size; i++) {
@@ -66,6 +68,7 @@ CTEST_SETUP(shortestjobfirst2) {
     shortest_job_first(data->task, data->size);
 }
 
+//This tests that the PID and execution times were set properly.
 CTEST2(shortestjobfirst2, test_init) {
     int execution[] = {5, 2, 8};
     for (int i = 0; i < data->size; i++) {
@@ -74,6 +77,8 @@ CTEST2(shortestjobfirst2, test_init) {
     }
 }
 
+// This tests that the wait times were computed correctly. 
+// The test compares against values I calculated by hand.
 CTEST2(shortestjobfirst2, test_wait) {
     int wait_times[] = {2,0,7};
     for (int i = 0; i < data->size; i++) {
@@ -86,6 +91,8 @@ CTEST2(shortestjobfirst2, test_wait) {
     }
 }
 
+// This tests that the turn times were computed correctly. 
+// The test compares against values I calculated by hand.
 CTEST2(shortestjobfirst2, test_turn) {
     int turn_times[] = {7,2,15};
     for (int i = 0; i < data->size; i++) {
@@ -111,6 +118,7 @@ CTEST_SETUP(shortestjobfirst3) {
     shortest_job_first(data->task, data->size);
 }
 
+//This tests that the PID and execution times were set properly.
 CTEST2(shortestjobfirst3, test_init) {
     int execution[] = {5, 2, 8, 1, 6};
     for (int i = 0; i < data->size; i++) {
@@ -119,18 +127,19 @@ CTEST2(shortestjobfirst3, test_init) {
     }
 }
 
+// This tests that the wait times were computed correctly. 
+// The test compares against values I calculated by hand.
 CTEST2(shortestjobfirst3, test_wait) {
     int wait_times[] = {3, 1, 14, 0, 8};
     for (int i = 0; i < data->size; i++) {
-        printf("\n wait time is: %d\n", data->task[i].waiting_time);
         ASSERT_EQUAL(wait_times[i], (int)data->task[i].waiting_time);
-        // printf("\nAvg wait time is: %f\n", calculate_average_wait_time(data->task, data->size));
-        // printf("\nAvg wait time is: %f\n", (float)4/3);
         ASSERT_EQUAL((float)calculate_average_wait_time(data->task, data->size) == (float)(5.2), 1);
 
     }
 }
 
+// This tests that the turn times were computed correctly. 
+// The test compares against values I calculated by hand.
 CTEST2(shortestjobfirst3, test_turn) {
     int turn_times[] = {8, 3, 22, 1, 14};
     for (int i = 0; i < data->size; i++) {
@@ -164,6 +173,10 @@ CTEST2(shortestjobfirst4, test_init) {
     }
 }
 
+// This tests that the wait times were computed correctly. 
+// The test compares against values I calculated by hand.
+// This test has tasks with the same execution time. 
+// I say that the first one in the queue gets priority, or "breaks the tie."
 CTEST2(shortestjobfirst4, test_wait) {
     int wait_times[] = {28, 2, 0, 4, 20, 1, 8, 14};
     for (int i = 0; i < data->size; i++) {
@@ -172,6 +185,8 @@ CTEST2(shortestjobfirst4, test_wait) {
     }
 }
 
+// This tests that the turn times were computed correctly. 
+// The test compares against values I calculated by hand.
 CTEST2(shortestjobfirst4, test_turn) {
     int turn_times[] = {53, 4, 1, 8, 28, 2, 14, 20};
     for (int i = 0; i < data->size; i++) {
@@ -204,6 +219,9 @@ CTEST2(shortestjobfirst5, test_init) {
     }
 }
 
+// This tests that the wait times were computed correctly. 
+// The test compares against values I calculated by hand.
+// This test has 0-execution-time tasks and are passed by.
 CTEST2(shortestjobfirst5, test_wait) {
     int wait_times[] = {10,6,3,1,0,0,0};
     for (int i = 0; i < data->size; i++) {
@@ -212,6 +230,8 @@ CTEST2(shortestjobfirst5, test_wait) {
     }
 }
 
+// This tests that the turn times were computed correctly. 
+// The test compares against values I calculated by hand.
 CTEST2(shortestjobfirst5, test_turn) {
     int turn_times[] = {22, 10, 6, 3, 1, 0,0};
     for (int i = 0; i < data->size; i++) {

@@ -57,7 +57,6 @@ void push(struct node_t** head, struct task_t* task) {
     int length = 0;
     // First check if we have an empty queue. If so, we're done.
     if (is_empty(head)) {
-        printf("\nPush: Frist Node Added: #%d\n", task->process_id);
         *head = new_node;
         return;
     }
@@ -65,7 +64,6 @@ void push(struct node_t** head, struct task_t* task) {
     while (cur_node != NULL )
     {
         length++;
-        printf("\nPush: Handling Process #%d\n", task->process_id);
         if (peek(&cur_node)->SORTING_VALUE > new_sort) {
             break;
         }
@@ -74,18 +72,15 @@ void push(struct node_t** head, struct task_t* task) {
     }
     // printf("\nAfter Push while loop\n");
     if (cur_node == NULL) {
-        printf("\nPush: adding to end of queue\n");
         //set last entry to the new_node;
         prev_node->next = new_node;
     }
     else {
         if(length == 1){
-            printf("\nPush: Special case (length 1 reorder) \n");
             *head = new_node;
             (*head)->next = cur_node;
             return;
         }
-        printf("\nPush: inserting into queue\n");
         //insert new_node
         struct node_t * temp = prev_node->next;
         prev_node->next = new_node;

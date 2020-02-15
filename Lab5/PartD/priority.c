@@ -15,29 +15,29 @@ void init(struct task_t *task, int *execution, int *priority, int size) {
 
 void priority_schedule(struct task_t *task, int size) {
     int time_elapsed = 0;
-    // Hints:
-    // 1. Create Queue based on the task array in the correct order
+    // Create Queue based on the task array in the correct order
     struct node_t *head = create_queue(task, size);
-    // 2. Each task can be processed for a time interval of 1 (i.e quantum time of 1)
-    // 3. You can process by pushing and popping items from the queue
-    // 4. You must recalculate the priorities after every turn
+    // Each task can be processed for a time interval of 1 (i.e quantum time of 1)
+    // You can process by pushing and popping items from the queue
+    // You must recalculate the priorities after every turn
     while(!is_empty(&head)) {
         //get current task
         struct task_t *cur_task = peek(&head);
+        //update variables to be incremented each loop
         cur_task->left_to_execute--;
         time_elapsed++;
         printf("\n Prio: PID #%d has %d more cycles at time %d\n", cur_task->process_id, cur_task->left_to_execute, time_elapsed);
+
         if(cur_task->left_to_execute <= 0){
-            //less than or equal to zero to handle the case of a 0 execution time on init.
+            // Should be 0, but it COULD be negative.
+            // less than or equal to zero to handle the case of a 0 execution time on init.
+            // update time_elapsed that handles 0-execution-time tasks also.
+            time_elapsed += cur_task->left_to_execute;
             pop(&head);
             cur_task->waiting_time = time_elapsed - cur_task->execution_time;
             cur_task->turnaround_time = time_elapsed;
         }
-        // printf("\nPrio: Creating new Queue\n");
         update_priority(&head, time_elapsed);
-        // printf("\nPrio: new Queue created\n");
-        //increment time.
-        // time_elapsed++;
     }
 }
 

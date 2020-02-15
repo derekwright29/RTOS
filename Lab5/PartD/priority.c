@@ -26,7 +26,6 @@ void priority_schedule(struct task_t *task, int size) {
         //update variables to be incremented each loop
         cur_task->left_to_execute--;
         time_elapsed++;
-        printf("\n Prio: PID #%d has %d more cycles at time %d\n", cur_task->process_id, cur_task->left_to_execute, time_elapsed);
 
         if(cur_task->left_to_execute <= 0){
             // Should be 0, but it COULD be negative.

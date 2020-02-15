@@ -131,13 +131,11 @@ void update_priority(struct node_t** head, int time) {
         if (peek(&cur_node)->execution_time == time) {
             // first priority change rule
             cur_node->task->priority *= 4;
-            printf("\nUpdate: multiplying PID #%d by 4: %d\n", peek(&cur_node)->process_id, peek(&cur_node)->priority);
             prio_changed_flag = 1;
         }
         if (cur_node->task->left_to_execute == time) {
             // second priority change rule
             cur_node->task->priority *= 2;
-            printf("\nUpdate: multiplying PID #%d by 2: %d\n", peek(&cur_node)->process_id, peek(&cur_node)->priority);
             prio_changed_flag = 1;
         }
         cur_node = cur_node->next;

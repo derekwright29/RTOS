@@ -65,28 +65,23 @@ void push(struct node_t** head, struct task_t* task) {
     while (cur_node != NULL )
     {
         length++;
-        // printf("\nPush: Handling Process #%d\n", task->process_id);
         if (peek(&cur_node)->SORTING_VALUE > new_sort) {
             break;
         }
         prev_node = cur_node;
         cur_node = cur_node->next;
     }
-    // printf("\nAfter Push while loop\n");
     if (cur_node == NULL) {
-        // printf("\nPush: adding to end of queue\n");
         //set last entry to the new_node;
         prev_node->next = new_node;
     }
     else {
         if(length == 1){
             //special case, where *head itself needs to be changed.
-            // printf("\nPush: Special case (length 1 reorder) \n");
             *head = new_node;
             (*head)->next = cur_node;
             return;
         }
-        // printf("\nPush: inserting into queue\n");
         //insert new_node
         struct node_t * temp = prev_node->next;
         prev_node->next = new_node;
@@ -133,7 +128,6 @@ void update_priority(struct node_t** head, int time) {
     int prio_changed_flag = 0;
     //traverse the queue
     while(!is_empty(&cur_node)) {
-        // printf("\nUpdate: Handling PID #%d\n", peek(&cur_node)->process_id);
         if (peek(&cur_node)->execution_time == time) {
             // first priority change rule
             cur_node->task->priority *= 4;

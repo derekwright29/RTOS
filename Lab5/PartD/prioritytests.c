@@ -16,7 +16,6 @@ CTEST_SETUP(priority) {
     int priority[] = {1, 2, 3};
     data->size = sizeof(execution) / sizeof(execution[0]);
     init(data->task, execution, priority, data->size);
-    printf("\nCTEST: Out of Init\n");
     priority_schedule(data->task, data->size);
 }
 
@@ -71,7 +70,6 @@ CTEST_SETUP(priority2) {
     int priority[] = {1, 2, 3};
     data->size = sizeof(execution) / sizeof(execution[0]);
     init(data->task, execution, priority, data->size);
-    printf("\nCTEST: Out of Init\n");
     priority_schedule(data->task, data->size);
 }
 

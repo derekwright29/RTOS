@@ -123,7 +123,7 @@ CTEST_SETUP(priority3) {
     int execution[] = {4,2, 6};
     int priority[] = {4, 7, 1};
     data->size = sizeof(execution) / sizeof(execution[0]);
-    init(data->task, execution, priority, data->size);
+    init(data->task, execution, priority, data->siz e);
     priority_schedule(data->task, data->size);
 }
 

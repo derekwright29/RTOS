@@ -42,7 +42,20 @@ void pop(struct node_t** head) {
     free(old_head);
 }
 
-/*
+
+/****************************************************************************
+ * Push-related defines
+ * These give portability to different "sorted" scheduling algorithms (SJF, Prio, etc)
+ * *****************************************************************************/
+#define OP_SORT_ORDER_ASCENDING     >
+#define OP_SORT_ORDER_DESCENDING    <
+
+// sorting_value is the member variable of the task that determines order
+#define SORTING_VALUE               priority
+// sort operator determines if the sorted list should be ascending or descending wrt the sorting value.
+#define __SORT_OPERATOR__           OP_SORT_ORDER_DESCENDING
+/*  Push Description:
+* ------------------------
  * Push needs to create a new node, populate it with task, and add it to the queue
  * Push needs to traverse the queue to find the proper place to insert.
  * I also wanted push to be able to handle (*head == NULL) because of my create_queue() function.
@@ -50,7 +63,6 @@ void pop(struct node_t** head) {
  * In this case it is priority. Lower priority values are assumed to be highest priority.
  * In the case of the same priority, the first task with that priority will be ahead of any that follow.
  * */
-#define SORTING_VALUE      priority
 void push(struct node_t** head, struct task_t* task) {
     struct node_t *new_node = create_new_node(task);
     struct node_t *cur_node = *head;
@@ -65,7 +77,7 @@ void push(struct node_t** head, struct task_t* task) {
     while (cur_node != NULL )
     {
         length++;
-        if (peek(&cur_node)->SORTING_VALUE > new_sort) {
+        if (peek(&cur_node)->SORTING_VALUE __SORT_OPERATOR__ new_sort) {
             break;
         }
         prev_node = cur_node;

@@ -8,7 +8,7 @@ void init(struct task_t *task, int *execution, int *priority, int size) {
         task[i].process_id = i;
         // ternary operator catches negative execution values, and sets them to 0
         task[i].execution_time = execution[i] < 0 ? 0: execution[i];
-        task[i].priority = priority[i] < 0 ? 0: priority[i];
+        task[i].priority = priority[i];// < 0 ? 0: priority[i];
         task[i].left_to_execute = execution[i] < 0 ? 0: execution[i];
     }
 }

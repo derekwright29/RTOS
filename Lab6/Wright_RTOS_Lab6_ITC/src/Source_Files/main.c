@@ -43,7 +43,7 @@
 #include  <common/include/lib_def.h>
 #include  <common/include/rtos_utils.h>
 #include  <common/include/toolchains.h>
-#include <lab7.h>
+#include <lab6.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include "em_device.h"
@@ -67,15 +67,15 @@
 */
 
 //#define BUTTON_TASK_PRIO						21u
-//#define CAPSENSE_TASK_PRIO						20u
+//#define CAPSENSE_TASK_PRIO					20u
 //#define LED_TASK_PRIO							19u
 #define MAIN_START_TASK_PRIO              		18u
 #define IDLE_TASK_PRIO							62u
 
 
-#define MAIN_START_TASK_STK_SIZE         512u
+#define MAIN_START_TASK_STK_SIZE         	512u
 //#define BUTTON_TASK_STK_SIZE				1024u
-//#define CAPSENSE_TASK_STK_SIZE				1024u
+//#define CAPSENSE_TASK_STK_SIZE			1024u
 //#define LED_TASK_STK_SIZE					1024u
 #define IDLE_TASK_STK_SIZE					1024u
 

@@ -1,5 +1,5 @@
 /*
- * lab7.h
+ * lab6.h
  *
  *  Created on: Feb 26, 2020
  *      Author: goat (Derek Wright)
@@ -29,8 +29,8 @@
  *
  */
 
-#ifndef LAB7_H_
-#define LAB7_H_
+#ifndef LAB6_H_
+#define LAB6_H_
 
 
 #include <stdint.h>
@@ -51,4 +51,4 @@
 
 
 
-#endif /* LAB7_H_ */
+#endif /* LAB6_H_ */

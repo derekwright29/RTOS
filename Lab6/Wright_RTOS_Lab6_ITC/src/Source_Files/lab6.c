@@ -5,5 +5,5 @@
  *      Author: goat
  */
 
-#include "lab7.h"
+#include <lab6.h>
 

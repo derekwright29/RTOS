@@ -6,11 +6,11 @@
  */
 
 
-#include <lab7.h>
 #include "buttons.h"
 #include "mycapsense.h"
 #include  <kernel/include/os.h>
 #include  <kernel/include/os_trace.h>
+#include <lab6.h>
 
 
 void create_led_task(void) {

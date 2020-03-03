@@ -10,11 +10,11 @@
 
 #include <stdint.h>
 
-#include "lab7.h"
 #include "em_cmu.h"
 #include "em_acmp.h"
 #include "gpio.h"
 #include "buttons.h"
+#include "lab6.h"
 #include "mycapsense.h"
 
 

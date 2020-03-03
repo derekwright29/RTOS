@@ -56,11 +56,6 @@
 			<locationURI>STUDIO_SDK_LOC/platform/Device/SiliconLabs/EFM32PG12B/Source/system_efm32pg12b.c</locationURI>
 		</link>
 		<link>
-			<name>cpu/source/cpu_core.c</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/platform/micrium_os/cpu/source/cpu_core.c</locationURI>
-		</link>
-		<link>
 			<name>kernel/include/os.h</name>
 			<type>1</type>
 			<locationURI>STUDIO_SDK_LOC/platform/micrium_os/kernel/include/os.h</locationURI>

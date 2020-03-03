@@ -82,15 +82,15 @@ void CapsenseTask()
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 		// get status
 		sample_capsense();
-		if ((uint8_t)capsenseIsPressed[0] == left_cap && (uint8_t)capsenseIsPressed[2] == right_cap) {
+ 		if (((uint8_t)capsenseIsPressed[0] | (uint8_t)capsenseIsPressed[1]) == left_cap && ((uint8_t)capsenseIsPressed[2] | (uint8_t)capsenseIsPressed[3]) == right_cap) {
 			isChanged = 0;
 		}
 		else {
 			isChanged = 1;
 			// I only use two channels because with the provided CSEN code ,
 			// two of the four channels initialized did not work as expected.
-			left_cap = (uint8_t)capsenseIsPressed[0];// | (uint8_t)capsenseIsPressed[1];
-			right_cap = (uint8_t)capsenseIsPressed[2];// | (uint8_t)capsenseIsPressed[3];
+			left_cap = (uint8_t)capsenseIsPressed[0] | (uint8_t)capsenseIsPressed[1];
+			right_cap = (uint8_t)capsenseIsPressed[2] | (uint8_t)capsenseIsPressed[3];
 		}
 		//create message and post
 		uint8_t cap_msg = left_cap | (right_cap << 1) | CAPSENSE_MSG_MASK;

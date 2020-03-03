@@ -3,7 +3,7 @@
 //***********************************************************************************
 #include "gpio.h"
 #include  <kernel/include/os.h>
-#include <lab7.h>
+#include <lab6.h>
 
 
 

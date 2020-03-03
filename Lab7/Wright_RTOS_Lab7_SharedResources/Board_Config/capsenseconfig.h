@@ -50,7 +50,7 @@ extern "C" {
  * PC3  | APORT1YCH3 or APORT2XCH3
  *
  */
-#define CAPSENSE_CHANNELS       { acmpInputAPORT1XCH0, acmpInputAPORT2XCH1, acmpInputAPORT1XCH2, acmpInputAPORT2XCH3 }
+//#define CAPSENSE_CHANNELS       { acmpInputAPORT1XCH0, acmpInputAPORT2XCH1, acmpInputAPORT1XCH2, acmpInputAPORT2XCH3 }
 #define BUTTON0_CHANNEL         0             /**< Button 0 channel */
 #define BUTTON1_CHANNEL         3             /**< Button 1 channel */
 #define ACMP_CHANNELS           4             /**< Number of channels in use for capsense */

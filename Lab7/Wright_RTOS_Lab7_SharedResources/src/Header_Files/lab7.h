@@ -34,13 +34,24 @@
 
 
 #include <stdint.h>
-
+#include <stdbool.h>
+#include "em_device.h"
+#include "em_chip.h"
+#include "em_emu.h"
+#include "bspconfig.h"
+#include "main.h"
+#include "cmu.h"
+#include "../cpu_cfg_local.h"
 #include "em_cmu.h"
 #include "em_acmp.h"
 #include "gpio.h"
 #include "buttons.h"
 #include "mycapsense.h"
 #include "led_driver.h"
+#include "fifo.h"
+#include "vehicle.h"
+#include "lcd.h"
+#include "general_tasks.h"
 
 
 /* Control the mode of operation of main: use interrupts (1) or not (0)? */

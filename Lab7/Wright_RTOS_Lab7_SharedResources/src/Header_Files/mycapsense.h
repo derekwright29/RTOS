@@ -21,7 +21,7 @@
 #define CAPSENSE_ISLEFT_MASK		0x1
 
 /* CSEN Capsense Defines */
-//#define CAPSENSE_CHANNELS       { csenSingleSelAPORT1XCH0, csenSingleSelAPORT1YCH1, csenSingleSelAPORT1XCH2, csenSingleSelAPORT1YCH3 }
+#define CAPSENSE_CHANNELS       { csenSingleSelAPORT1XCH0, csenSingleSelAPORT1YCH1, csenSingleSelAPORT1XCH2, csenSingleSelAPORT1YCH3 }
 #define CSEN_CHANNELS           4             /**< Number of channels in use for capsense */
 #define CAPSENSE_THRESHOLD		25000u
 

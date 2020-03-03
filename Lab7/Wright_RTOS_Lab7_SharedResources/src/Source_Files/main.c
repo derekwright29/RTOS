@@ -56,6 +56,7 @@
 #include "mycapsense.h"
 #include "buttons.h"
 #include "led_driver.h"
+#include "vehicle.h"
 #include "../cpu_cfg_local.h"
 
 /*
@@ -77,7 +78,7 @@
 //#define BUTTON_TASK_STK_SIZE				1024u
 //#define CAPSENSE_TASK_STK_SIZE				1024u
 //#define LED_TASK_STK_SIZE					1024u
-#define IDLE_TASK_STK_SIZE					1024u
+//#define IDLE_TASK_STK_SIZE					1024u
 
 /*
 *********************************************************************************************************
@@ -92,14 +93,14 @@ static  CPU_STK  MainStartTaskStk[MAIN_START_TASK_STK_SIZE];
 //static  CPU_STK  ButtonTaskStk[BUTTON_TASK_STK_SIZE];
 //static  CPU_STK  CapsenseTaskStk[CAPSENSE_TASK_STK_SIZE];
 //static  CPU_STK  LEDTaskStk[LED_TASK_STK_SIZE];
-static  CPU_STK  IdleTaskStk[LED_TASK_STK_SIZE];
+//static  CPU_STK  IdleTaskStk[LED_TASK_STK_SIZE];
 
 /* Task TCBs.                                      */
 static  OS_TCB   MainStartTaskTCB;
 //static  OS_TCB   ButtonTaskTCB;
 //static  OS_TCB   CapsenseTaskTCB;
 //static  OS_TCB   LEDTaskTCB;
-static  OS_TCB   IdleTaskTCB;
+//static  OS_TCB   IdleTaskTCB;
 
 
 /* Global variable definitions */
@@ -113,6 +114,15 @@ volatile uint32_t msticks = 0; // gives 4 billion some milliseconds. I do not ac
 /* ITC Message Queue */
 OS_Q ITC_Queue;
 
+/* Button Input FIFOs */
+InputFifo_t FIFO_Button0;
+InputFifo_t FIFO_Button1;
+
+/* Vehicle Info data structures */
+VehicleSpeed_t vehicle_speed;
+VehicleDir_t vehicle_dir;
+
+
 /*
 *********************************************************************************************************
 *********************************************************************************************************
@@ -122,12 +132,21 @@ OS_Q ITC_Queue;
 */
 
 /* Task main functions*/
+#define NUM_TASKS_TO_START		7
+void (*task_array[])(void) = {  create_idle_task,
+								create_capsense_task,
+								create_button_task,
+								create_led_task,
+								create_vehicle_speed_task,
+								create_vehicle_dir_task,
+								create_vehicle_monitor_task
+								};
 
 static  void  MainStartTask (void  *p_arg);		// the void *p_arg is what OSTaskCreate expects. Not strictly necessary.
 //static  void  ButtonTask (void );
 //static  void  CapsenseTask (void);
 //static  void  LEDTask (void);
-static  void  IDLETask (void *p_arg);
+//static  void  IDLETask (void *p_arg);
 
 //static void CapsenseTimerCallback(OS_TMR p_tmr, void *p_arg);
 
@@ -222,14 +241,6 @@ int  main (void)
 *********************************************************************************************************
 */
 
-static void IDLETask(void * p_arg)
-{
-	while(1)
-	{
-		EMU_EnterEM1();
-	}
-}
-
 
 RTOS_ERR  glob_err;
 static  void  MainStartTask (void  *p_arg)
@@ -254,27 +265,24 @@ static  void  MainStartTask (void  *p_arg)
 			&glob_err);
 	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(glob_err) == RTOS_ERR_NONE), 1);
 
-	button_create_osFlag();
-	create_button_task();
-
+	/* Create OS Constructs Necessary for given tasks */
 	create_capsense_sem();
 	create_capsense_timer();
-    create_capsense_task();
 
-     create_led_task();
-     OSTaskCreate(&IdleTaskTCB,                          /* Create the Start Task.                               */
-				 "My Idle Task",
-				  IDLETask,
-				  DEF_NULL,
-				  IDLE_TASK_PRIO,
-				 &IdleTaskStk[0],
-				 (IDLE_TASK_STK_SIZE / 10u),
-				  IDLE_TASK_STK_SIZE,
-				  0u,
-				  0u,
-				  DEF_NULL,
-				 (OS_OPT_TASK_STK_CLR),
-				 &glob_err);
-	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(glob_err) == RTOS_ERR_NONE), 1);
+	button_create_osFlag();
+
+	// start all the tasks listed above in this file.
+	for (uint8_t i = 0; i < NUM_TASKS_TO_START; i++) {
+		task_array[i]();
+	}
+
+
+//	create_button_task();
+
+
+//    create_capsense_task();
+
+//     create_led_task();
+
 
 }

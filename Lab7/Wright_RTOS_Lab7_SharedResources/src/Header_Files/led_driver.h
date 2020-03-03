@@ -48,7 +48,7 @@ void  LEDTask (void);
 
 
 /**
- * start_led_task()
+ * create_led_task()
  * ----------------
  * @description This function simply makes the OS call to start the LED task.
  *

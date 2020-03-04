@@ -34,12 +34,14 @@
 
 
 #include <stdint.h>
+#include <time.h>
 #include <stdbool.h>
 #include "em_device.h"
 #include "em_chip.h"
 #include "em_emu.h"
 #include "bspconfig.h"
 #include "main.h"
+#include "fifo.h"
 #include "cmu.h"
 #include "../cpu_cfg_local.h"
 #include "em_cmu.h"
@@ -48,14 +50,18 @@
 #include "buttons.h"
 #include "mycapsense.h"
 #include "led_driver.h"
-#include "fifo.h"
 #include "vehicle.h"
 #include "lcd.h"
 #include "general_tasks.h"
 
-
 /* Control the mode of operation of main: use interrupts (1) or not (0)? */
 #define LAB2_USE_INTERRUPTS		1
+
+
+/**
+ * Globals that multiple files might need
+ */
+
 
 
 

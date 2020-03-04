@@ -13,6 +13,7 @@
 #include  <kernel/include/os_trace.h>
 #include "gpio.h"
 
+
 /*************************
  * Button Task defines
  ***********************/
@@ -31,20 +32,14 @@ OS_TCB   ButtonTaskTCB;
 // a
 #define BUTTON_MSG_MASK			0x4
 
-// Enumerated type for flag
-typedef enum Button_Flag {
-	BUTTON0_RELEASED = 0,
-	BUTTON0_PRESSED = 1,
-	BUTTON1_RELEASED = 2,
-	BUTTON1_PRESSED = 4,
+typedef enum {
+	BUTTON_RELEASED = 1
+}ButtonFlag_t;
 
-}Button_Flag_t;
 
-//***********************************************************************************
-// global variables
-//***********************************************************************************
 
-/* Button 0 Event Message*/
+//
+///* Button 0 Event Message*/
 OS_FLAG_GRP button_flags;
 extern OS_Q ITC_Queue;
 /**

@@ -3,7 +3,9 @@
 //***********************************************************************************
 #include "gpio.h"
 #include  <kernel/include/os.h>
-#include <lab7.h>
+#include "fifo.h"
+#include "buttons.h"
+#include "vehicle.h"
 
 
 
@@ -61,10 +63,12 @@ void GPIO_EVEN_IRQHandler(void) {
 	RTOS_ERR err;
 	GPIO_IntClear(interrupt_masks);
 	if (interrupt_masks & (1 << BSP_GPIO_PB0_PIN)) {
-		OSFlagPost(&button_flags,
-			BUTTON_0_FLAG,
-			OS_OPT_POST_FLAG_SET,
-			&err);
+		// Add to FIFO BUTTON0_RELEASED
+		InputFifo_Put(&FIFO_Button0, (InputValue_t) BUTTON_RELEASED);
+		// Post to semaphore to indicate a state has changed.
+		OSSemPost(&speed_change_sem,
+				OS_OPT_POST_1,
+				&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 	}
 }
@@ -74,10 +78,11 @@ void GPIO_ODD_IRQHandler(void) {
 	RTOS_ERR err;
 	GPIO_IntClear(interrupt_masks);
 	if (interrupt_masks & (1 << BSP_GPIO_PB1_PIN)) {
-		// determine rising/falling edge
-		OSFlagPost(&button_flags,
-				BUTTON_1_FLAG,
-				OS_OPT_POST_FLAG_SET,
+		// Add to FIFO BUTTON0_RELEASED
+		InputFifo_Put(&FIFO_Button1, (InputValue_t)BUTTON_RELEASED);
+		// Post to semaphore to indicate a state has changed.
+		OSSemPost(&speed_change_sem,
+				OS_OPT_POST_1,
 				&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 	}

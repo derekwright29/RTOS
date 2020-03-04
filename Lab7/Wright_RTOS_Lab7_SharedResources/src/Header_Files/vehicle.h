@@ -10,8 +10,8 @@
 
 #include  <stdint.h>
 #include  <kernel/include/os.h>
-#include "lab7.h"
 #include <time.h>
+#include "buttons.h"
 
 /*************************
  * Vehicle Tasks defines
@@ -34,6 +34,15 @@ CPU_STK  DirectionTaskStk[VEHICLE_MONITOR_TASK_STK_SIZE];
 OS_TCB   DirectionTaskTCB;
 
 
+/**
+ * Logic/Operational Defines
+ */
+#define NO_CHANGE_TIMEOUT  		5000	// in ms = 5sec
+
+#define SPEED_LIMIT				75
+#define TURN_SPEED_LIMIT		45
+
+
 /** **********************
  * Vehicle Type Defines
  ** ***********************/
@@ -45,8 +54,7 @@ typedef struct VehicleSpeed {
 } VehicleSpeed_t;
 
 typedef enum SpeedFlag {
-	SPEED_INCREASE = 1,
-	SPEED_DECREASE = 2,
+	SPEED_CHANGED = 1,
 }SpeedFlag_t;
 
 // define this as independent bits to be used in direction flag as well.
@@ -55,6 +63,7 @@ typedef enum Direction {
 	DIR_LEFT = 2,
 	DIR_RIGHT = 4,
 	DIR_FAR_RIGHT = 8,
+	DIR_STRAIGHT = 16,
 } Direction_t;
 
 typedef struct VehicleDir {
@@ -76,9 +85,17 @@ typedef enum VehicleAlert {
  ************************/
 OS_FLAG_GRP speed_flags;
 OS_FLAG_GRP dir_flags;
+OS_FLAG_GRP alert_flags;
 
-OS_SEM speed_sem;
-OS_SEM dir_sem;
+OS_SEM speed_change_sem;
+OS_MUTEX speed_mutex;
+OS_MUTEX dir_mutex;
+
+OS_TMR no_change_timer;
+
+/* Vehicle Info data structures */
+VehicleSpeed_t vehicle_speed;
+VehicleDir_t vehicle_dir;
 
 
 /** **********************
@@ -133,6 +150,24 @@ void create_vehicle_monitor_task(void);
  */
 void VehicleSpeedTask(void * p_arg);
 
+
+
+/**
+ * decideDirection()
+ * ----------------
+ * @description This function decides the direction we are going based on Capsense measurements
+ * 				I enforce strict input in order to trigger a hard turn (has to be ONLY the far left or right channel)
+ * 				For the rest, I add up the left side and right side, and go with which has more votes
+ * 				If they are the same, we go straight.
+ *
+ * 				Because I'm lazy, it also updates the bool array passed in to be a copy of capsenseIsPressed
+ *
+ * @param	state_array is a bool array the same length as capsenseIsPressed
+ *
+ * @return	The direction we have chosen
+ *
+ */
+Direction_t decideDirection(bool * state_array);
 /**
  * VehicleDirectionTask()
  * ----------------
@@ -144,6 +179,20 @@ void VehicleSpeedTask(void * p_arg);
  *
  */
 void VehicleDirectionTask(void * p_arg);
+
+
+/**
+ * * VehicleDirectionTask()
+ * ----------------
+ * @description This function is the callback function of the Alert Timer
+ * 				It will post the alert flag to the LED task.
+ *
+ * @param	None
+ *
+ * @return	None
+ *
+ */
+void AlertTimerCallback(void);
 
 /**
  * VehicleMonitorTask()

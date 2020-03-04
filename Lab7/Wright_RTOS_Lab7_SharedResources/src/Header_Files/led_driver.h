@@ -10,7 +10,6 @@
 
 #include <stdint.h>
 
-#include "lab7.h"
 #include "em_cmu.h"
 #include "em_acmp.h"
 #include "gpio.h"

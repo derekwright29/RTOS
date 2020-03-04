@@ -7,6 +7,7 @@
 
 
 #include "buttons.h"
+#include "fifo.h"
 #include  <stdint.h>
 
 void ButtonTask()

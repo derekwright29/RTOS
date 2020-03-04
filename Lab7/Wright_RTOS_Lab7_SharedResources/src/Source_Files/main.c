@@ -43,6 +43,7 @@
 #include  <common/include/lib_def.h>
 #include  <common/include/rtos_utils.h>
 #include  <common/include/toolchains.h>
+#include "fifo.h"
 #include <lab7.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -114,14 +115,6 @@ volatile uint32_t msticks = 0; // gives 4 billion some milliseconds. I do not ac
 /* ITC Message Queue */
 OS_Q ITC_Queue;
 
-/* Button Input FIFOs */
-InputFifo_t FIFO_Button0;
-InputFifo_t FIFO_Button1;
-
-/* Vehicle Info data structures */
-VehicleSpeed_t vehicle_speed;
-VehicleDir_t vehicle_dir;
-
 
 /*
 *********************************************************************************************************
@@ -132,15 +125,16 @@ VehicleDir_t vehicle_dir;
 */
 
 /* Task main functions*/
-#define NUM_TASKS_TO_START		7
+
 void (*task_array[])(void) = {  create_idle_task,
-								create_capsense_task,
-								create_button_task,
 								create_led_task,
 								create_vehicle_speed_task,
 								create_vehicle_dir_task,
-								create_vehicle_monitor_task
+								create_vehicle_monitor_task,
+								create_lcd_task
 								};
+
+#define NUM_TASKS_TO_START		sizeof(task_array)/sizeof(void *)
 
 static  void  MainStartTask (void  *p_arg);		// the void *p_arg is what OSTaskCreate expects. Not strictly necessary.
 //static  void  ButtonTask (void );

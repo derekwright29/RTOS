@@ -163,4 +163,18 @@ uint8_t capsense_isRight(uint8_t capstate);
  */
 uint8_t capsense_isNeither(uint8_t capstate);
 
+/**
+ * capsense_isChanged()
+ * ___________________
+ * @description This function compares the global array of capsense state with a local copy, passed in as a bool array
+ *
+ * @parameters
+ * 	- bool *state_array: the local state passed in. It should be CSEN_CHANNELS long.
+
+ * @return
+ *		- bool: 1 if capsense state has changed
+ *				0 else.
+ */
+bool capsense_isChanged(bool * state_array);
+
 #endif /* MYCAPSENSE_H_ */

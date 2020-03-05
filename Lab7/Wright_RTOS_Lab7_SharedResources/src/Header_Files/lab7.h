@@ -10,21 +10,9 @@
  *     All general-use functions do not belong here, and should be placed in
  *     their own header/source files.
  *
- *     For example, "decide_led_outs" is a specific function that will only
- *     relate to Lab2 of this class. I refuse to put that in gpio.h/.c
+ *     Also, this is a good place to put all necessary includes, to be easily ported around the project
  *
- *     More on the edge, though, is the sample_capsense function.
- *     I put these here because there are multiple ways to interact
- *     with this sensor. For this lab, I used CAPSENSE_getPressed(),
- *     but there are others, like CAPSENSE_getSliderPosition().
- *     Since this is a specific application to lab7, here it is.
- *
- *     Additionally, multiple interface functions exist here, like
- *     isRight(), isLeft(), isNeither() functions. These don't belong in
- *     capsense.c or gpio.c. Macros like CAPSENSE_ISLEFT_MASK provide flexible
- *     changes to possible interface applications
- *
- *
+ *     IMPORTANT: To use this as an include hub, you MUST have an ifndef at the top of EVERY HEADER FILE!!!
  *
  *
  */

@@ -6,6 +6,7 @@
 #include "fifo.h"
 #include "buttons.h"
 #include "vehicle.h"
+#include "lab7.h"
 
 
 
@@ -63,7 +64,7 @@ void GPIO_EVEN_IRQHandler(void) {
 	RTOS_ERR err;
 	GPIO_IntClear(interrupt_masks);
 	if (interrupt_masks & (1 << BSP_GPIO_PB0_PIN)) {
-		// Add to FIFO BUTTON0_RELEASED
+		// Add to FIFO BUTTON_RELEASED
 		InputFifo_Put(&FIFO_Button0, (InputValue_t) BUTTON_RELEASED);
 		// Post to semaphore to indicate a state has changed.
 		OSSemPost(&speed_change_sem,
@@ -78,7 +79,7 @@ void GPIO_ODD_IRQHandler(void) {
 	RTOS_ERR err;
 	GPIO_IntClear(interrupt_masks);
 	if (interrupt_masks & (1 << BSP_GPIO_PB1_PIN)) {
-		// Add to FIFO BUTTON0_RELEASED
+		// Add to FIFO BUTTON_RELEASED
 		InputFifo_Put(&FIFO_Button1, (InputValue_t)BUTTON_RELEASED);
 		// Post to semaphore to indicate a state has changed.
 		OSSemPost(&speed_change_sem,

@@ -21,7 +21,7 @@
  * LED Task Defines
  */
 //Priority
-#define LED_TASK_PRIO						19u
+#define LED_TASK_PRIO						22u
 //task stack size to allocate
 #define LED_TASK_STK_SIZE					1024u
 //task stack
@@ -32,7 +32,6 @@ OS_TCB   LEDTaskTCB;
 /****************************
  * Global Variables
  ****************************/
-extern OS_Q ITC_Queue;
 
 //Task function Prototype
 /**
@@ -57,29 +56,6 @@ void  LEDTask (void);
  *
  */
 void create_led_task(void);
-
-
-/**
- * decide_led_outs()
- * ___________________
- * @description This function controls the states of the leds
- * 				given our control inputs: the two buttons, and
- * 				the state of the capactive touch sensor
- *
- * @parameters
- * 	- uint8_t button0: state of button0; 1 if unpressed, 0 if pressed
- * 	- uint8_t button1: state of button1
- * 	- uint8_t capstate: This implementation	uses four channels of the capsense
- * 						The least significant 4 bits correspond to the state
- * 						of each channel (0th bit ~ 0th channel).
- * 						Masks are provided above to extract left/right channels.
- *
- * @return
- *		- void: the function manipulates the leds and does not need to return anything.
- */
-void decide_led_outs(uint8_t button0, uint8_t button1, uint8_t capstate);
-
-
 
 
 

@@ -4,6 +4,7 @@
  *  Created on: Mar 2, 2020
  *      Author: goat
  */
+#include <stdint.h>
 #include "fifo.h"
 #include "vehicle.h"
 #include "mycapsense.h"
@@ -69,7 +70,7 @@ void speed_task_init(){
 	vehicle_speed.dec_cnt = 0;
 	vehicle_speed.inc_cnt = 0;
 	vehicle_speed.speed_cnt = 0;
-	vehicle_speed.speed = 5*vehicle_speed.speed_cnt;
+	vehicle_speed.speed = SPEED_INCREMENT*vehicle_speed.speed_cnt;
 	//Create Flag
 	OSFlagCreate(&speed_flags,
 				 "Speed Flag Group",
@@ -118,14 +119,14 @@ void VehicleSpeedTask(void * p_arg) {
 			InputFifo_Get((InputFifo_t *)&FIFO_Button0, &ret);
 			vehicle_speed.inc_cnt++;
 			vehicle_speed.speed_cnt++;
-			vehicle_speed.speed = 5*vehicle_speed.speed_cnt;
+			vehicle_speed.speed = SPEED_INCREMENT*vehicle_speed.speed_cnt;
 		}
 		//empty Button 1 FIFO. Practically there will likely be either 0 or 1 items
 		while(!InputFifo_isEmpty((InputFifo_t *)&FIFO_Button1)) {
 			InputFifo_Get((InputFifo_t *)&FIFO_Button1, &ret);
 			vehicle_speed.dec_cnt++;
 			vehicle_speed.speed_cnt--;
-			vehicle_speed.speed = 5*vehicle_speed.speed_cnt;
+			vehicle_speed.speed = SPEED_INCREMENT*vehicle_speed.speed_cnt;
 		}
 		// release mutex
 		OSMutexPost(&speed_mutex,
@@ -171,28 +172,44 @@ void VehicleDirectionTask(void * p_arg) {
 			//decides direction and also updates cap_state... I know...
 			cur_dir = decideDirection(cap_state);
 		}
-		// update direction
-//		OSMutexPend(&dir_mutex,
-//					0,
-//					&err);
+		//acquire mutex to allow us to change vehicle_dir struct
+		OSMutexPend(&speed_mutex,
+					0,
+					OS_OPT_PEND_BLOCKING,
+					(CPU_TS*)0,
+					&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
-		vehicle_dir.veh_dir = cur_dir;
+		vehicle_dir.dir = cur_dir;
 		vehicle_dir.left_cnt += (cur_dir == DIR_FAR_LEFT || cur_dir == DIR_LEFT);
 		vehicle_dir.right_cnt += (cur_dir == DIR_FAR_RIGHT || cur_dir == DIR_RIGHT);
-
+		vehicle_dir.time_since_change += DIRECTION_TASK_PERIOD * !isChanged; // if not changed, add to time.
 		if (isChanged) {
 			vehicle_dir.time_since_change = 0;
 			OSTmrStart(&no_change_timer,
 					&err);
 			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
-//			OSFlagPost(&dir_flags,
-//					cur_dir,
-//					&err);
+			// Post to monitor task we have a new dir.
+			OSFlagPost(&dir_flags,
+						cur_dir,
+						OS_OPT_POST_FLAG_SET,
+						&err);
+			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+
 			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 			isChanged = false;
 		}
-	}
-}
+		OSMutexPost(&dir_mutex,
+					OS_OPT_POST_NONE,
+					&err);
+
+		//delay for DIRECTION_TASK_PERIOD ms
+		OSTimeDly(DIRECTION_TASK_PERIOD_TICKS,
+				  OS_OPT_TIME_PERIODIC,
+				  &err);
+
+	} // end while
+} // end direction task
+
 Direction_t decideDirection(bool * state_array) {
 	uint8_t i;
 	for(i = 0; i < CSEN_CHANNELS; i++) {
@@ -226,11 +243,22 @@ void init_monitor_task() {
 
 }
 
+VehicleAlert_t vehicle_get_alert(int16_t speed, Direction_t dir) {
+	if (speed > 75 || speed < -75) {
+		return ALERT_SPEED_LIMIT;
+	}
+	else if ((speed > 45 && dir != DIR_STRAIGHT) || (speed < -45 && dir != DIR_STRAIGHT)) {
+		return ALERT_TURN_SPEED_LIMIT;
+	}
+	return ALERT_NO_ALERT;
+}
+
 void AlertTimerCallback() {
 	RTOS_ERR err;
-//	OSFlagPost(&alert_flags,
-//			ALERT_DIRECTION_TIMEOUT,
-//			&err);
+	OSFlagPost(&alert_flags,
+			ALERT_DIRECTION_TIMEOUT,
+			OS_OPT_POST_FLAG_SET,
+			&err);
 	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 }
 
@@ -241,10 +269,16 @@ void VehicleMonitorTask(void * p_arg) {
 	init_monitor_task();
 	OSTmrStart(&no_change_timer,
 			&err);
+	// blocking variables to allow the Pends() to be non_blocking
 	Direction_t cur_dir = 0;
 	SpeedFlag_t cur_spd = 0;
 
+	// alert is the output of this task
+	VehicleAlert_t alert = ALERT_NO_ALERT;
+
 	while(1) {
+		// this will return 0 or the flags that caused the pend to succeed.
+		// if this pend succeeds (cur_dir != 0), we have a state change, guranteed by direction task.
 		cur_dir = OSFlagPend(&dir_flags,
 							0xFF,
 							0,
@@ -267,23 +301,18 @@ void VehicleMonitorTask(void * p_arg) {
 		if (cur_spd){
 			got_spd = true;
 		}
-		if (got_dir) {
-			//acquire mutex
-			//update  direction data struct
-			//release mutex
-		}
-		if (got_spd) {
-			//acquire mutex
-			//update speed
-			//release mutex
-		}
+		//Check if we need to do anything.
 		if (got_spd || got_dir) {
 			//check for speed/dir errors
-			//post to alert flags if conditions met.
+			alert = vehicle_get_alert(vehicle_speed.speed, vehicle_dir.dir);
+			OSFlagPost(&alert_flags,
+						alert,
+						OS_OPT_POST_FLAG_SET,
+						&err);
+			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+			//reset blocking variables
+			got_spd = 0;
+			got_dir = 0;
 		}
-
-
-
-	}
-
-}
+	} //end while
+} // end monitor task

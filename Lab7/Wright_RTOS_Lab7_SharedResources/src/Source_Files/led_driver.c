@@ -36,81 +36,31 @@ APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 void LEDTask()
 {
 	RTOS_ERR err;
-	uint8_t button0_state = 0;
-	uint8_t button1_state = 0;
-	uint8_t cap_state = 0;
-	void * msg_read;
-	uint32_t msg_size;
+	VehicleAlert_t alert = ALERT_NO_ALERT;
+	bool alerted = false;
 	//init LEDs
 	while(1)
 	{
-		msg_read = OSQPend(&ITC_Queue,
+		alert = OSFlagPend(&alert_flags,
+				ALERT_FLAGS_ALL,
 				0,
-				OS_OPT_PEND_BLOCKING,
-				(OS_MSG_SIZE *)&msg_size,
-				(CPU_TS *)0,
+				OS_OPT_PEND_FLAG_SET_ANY + OS_OPT_PEND_FLAG_CONSUME + OS_OPT_PEND_BLOCKING,
+				DEF_NULL,
 				&err);
-/*   Check error code.                           */
+		/*   Check error code.                           */
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
-		uint8_t state = *(uint8_t*)msg_read;
-		if (state & CAPSENSE_MSG_MASK) {
-			// this means the msg came from capsense
-			cap_state = state & CAP_STATE_MASK; //mask off the state bits
+		if (alert == ALERT_SPEED_LIMIT || alert == ALERT_TURN_SPEED_LIMIT) {
+			GPIO_PinOutSet(LED0_port, LED0_pin);
+			alerted = true;
 		}
-		else {
-			//this means msg came from button
-			button0_state = state & BUTTON_0_MASK;
-			button1_state = (state & BUTTON_1_MASK)>>1;
+		else if (alert == ALERT_DIRECTION_TIMEOUT) {
+			GPIO_PinOutSet(LED1_port, LED1_pin);
+			alerted = true;
 		}
-		decide_led_outs(button0_state, button1_state, cap_state);
-	}
-}
-
-void decide_led_outs(uint8_t button0, uint8_t button1, uint8_t capstate) {
-	uint8_t buttons_only = 0;
-	// no touch sensed on capsense
-	if (capsense_isNeither(capstate)) {
-		buttons_only = 1;
-	}
-
-	// don't take capstate value into account
-	if(buttons_only) {
-		if (button_isNeither(button0, button1)) {
-			// same as no buttons pressed
+		else if (alert == ALERT_NO_ALERT && alerted){
 			GPIO_PinOutClear(LED0_port, LED0_pin);
 			GPIO_PinOutClear(LED1_port, LED1_pin);
-		}
-		else{
-			if (!button0) {
-				GPIO_PinOutSet(LED0_port, LED0_pin);
-				GPIO_PinOutClear(LED1_port, LED1_pin);
-			}
-			else if (!button1) {
-				GPIO_PinOutSet(LED1_port, LED1_pin);
-				GPIO_PinOutClear(LED0_port, LED0_pin);
-			}
-		}
-	}
-	else {
-		//means we have a one-sided capstate.
-		if (button_isNeither(button0, button1)) {
-			if(capsense_isLeft(capstate)) {
-				GPIO_PinOutSet(LED0_port, LED0_pin);
-				GPIO_PinOutClear(LED1_port, LED1_pin);
-			}
-			else if (capsense_isRight(capstate)) {
-				GPIO_PinOutSet(LED1_port, LED1_pin);
-				GPIO_PinOutClear(LED0_port, LED0_pin);
-			}
-
-		}
-		else {
-			if (capsense_isLeft(capstate) || !button0) {
-				GPIO_PinOutSet(LED0_port, LED0_pin);
-			}
-			if (capsense_isRight(capstate) || !button1) {
-				GPIO_PinOutSet(LED1_port, LED1_pin);
-			}
+			alerted = false;
 		}
 	}
 }

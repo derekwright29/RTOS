@@ -37,10 +37,14 @@ OS_TCB   DirectionTaskTCB;
 /**
  * Logic/Operational Defines
  */
-#define NO_CHANGE_TIMEOUT  		5000	// in ms = 5sec
+#define NO_CHANGE_TIMEOUT  				5000	// in ms = 5sec
 
-#define SPEED_LIMIT				75
-#define TURN_SPEED_LIMIT		45
+#define DIRECTION_TASK_PERIOD			50		// in ms
+#define DIRECTION_TASK_PERIOD_TICKS		1
+
+#define SPEED_INCREMENT					5		// in mph
+#define SPEED_LIMIT						75
+#define TURN_SPEED_LIMIT				45
 
 
 /** **********************
@@ -66,8 +70,10 @@ typedef enum Direction {
 	DIR_STRAIGHT = 16,
 } Direction_t;
 
+#define DIR_FLAGS_ALL 	(DIR_FAR_LEFT | DIR_LEFT | DIR_RIGHT | DIR_FAR_RIGHT | DIR_STRAIGHT )
+
 typedef struct VehicleDir {
-	Direction_t veh_dir;
+	Direction_t dir;
 	time_t      time_since_change;
 	uint16_t    left_cnt;
 	uint16_t    right_cnt;
@@ -78,7 +84,9 @@ typedef enum VehicleAlert {
 	ALERT_DIRECTION_TIMEOUT = 1,
 	ALERT_SPEED_LIMIT = 2,
 	ALERT_TURN_SPEED_LIMIT = 4,
+	ALERT_NO_ALERT = 8,
 }VehicleAlert_t;
+#define ALERT_FLAGS_ALL 	(ALERT_DIRECTION_TIMEOUT | ALERT_SPEED_LIMIT | ALERT_TURN_SPEED_LIMIT)
 
 /*************************
  * LOCAL GLOBAL VARIABLES
@@ -125,6 +133,20 @@ void create_vehicle_speed_task(void);
  *
  */
 void create_vehicle_dir_task(void);
+
+
+/**
+ *  * vehicle_get_alert()
+ * ----------------
+ * @description This function returns the current alert state of the system
+ *
+ * @param	Vehicle Speed
+ * 			Vehicle Direction
+ *
+ * @return	Vehicle Alert based on the struct
+ *
+ */
+VehicleAlert_t vehicle_get_alert(int16_t speed, Direction_t dir);
 
 /**
  * create_vehicle_monitor_task()

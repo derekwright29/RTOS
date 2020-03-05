@@ -127,11 +127,11 @@ OS_Q ITC_Queue;
 /* Task main functions*/
 
 void (*task_array[])(void) = {  create_idle_task,
+								create_lcd_task,
+								create_vehicle_monitor_task,
 								create_led_task,
 								create_vehicle_speed_task,
 								create_vehicle_dir_task,
-								create_vehicle_monitor_task,
-								create_lcd_task
 								};
 
 #define NUM_TASKS_TO_START		sizeof(task_array)/sizeof(void *)

@@ -71,6 +71,10 @@ void speed_task_init(){
 	vehicle_speed.inc_cnt = 0;
 	vehicle_speed.speed_cnt = 0;
 	vehicle_speed.speed = SPEED_INCREMENT*vehicle_speed.speed_cnt;
+
+	//init buttons
+	gpio_open();
+
 	//Create Flag
 	OSFlagCreate(&speed_flags,
 				 "Speed Flag Group",

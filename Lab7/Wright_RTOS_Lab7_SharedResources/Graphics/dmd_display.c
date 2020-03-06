@@ -20,6 +20,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#include <display.h>
+#include <dmd.h>
 #include "display.h"
 #include "dmd.h"
 

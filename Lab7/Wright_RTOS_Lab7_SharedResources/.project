@@ -240,15 +240,5 @@
 			<type>1</type>
 			<locationURI>STUDIO_SDK_LOC/platform/micrium_os/ports/source/gnu/armv7m_os_cpu_c.c</locationURI>
 		</link>
-		<link>
-			<name>BSP/siliconlabs/generic/source/bsp_cpu.c</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/platform/micrium_os/bsp/siliconlabs/generic/source/bsp_cpu.c</locationURI>
-		</link>
-		<link>
-			<name>BSP/siliconlabs/generic/source/bsp_os.c</name>
-			<type>1</type>
-			<locationURI>STUDIO_SDK_LOC/platform/micrium_os/bsp/siliconlabs/generic/source/bsp_os.c</locationURI>
-		</link>
 	</linkedResources>
 </projectDescription>

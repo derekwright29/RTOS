@@ -1,6 +1,6 @@
 /***************************************************************************//**
  * @file
- * @brief Configuration file for DISPLAY device driver interface.
+ * @brief Main configuration file for the DISPLAY driver software stack.
  *******************************************************************************
  * # License
  * <b>Copyright 2018 Silicon Laboratories Inc. www.silabs.com</b>
@@ -28,44 +28,37 @@
  *
  ******************************************************************************/
 
-#ifndef __SILICON_LABS_DISPLAYCONFIG_H__
-#define __SILICON_LABS_DISPLAYCONFIG_H__
+#ifndef __DISPLAYCONFIGALL_H
+#define __DISPLAYCONFIGALL_H
 
-/* Include the application specific configuration file. */
-//#include "displayconfigapp.h"
+#ifdef HAL_CONFIG
+#include "displayhalconfig.h"
+#else
+/*
+ * First, we list the default INCLUDE_XXX #defines which may be excluded later
+ * by the kit or application specific configuration files.
+ */
+#define INCLUDE_PAL_GPIO_PIN_AUTO_TOGGLE
 
-/* Include support for the SHARP Memory LCD model LS013B7DH03 */
-#define INCLUDE_DISPLAY_SHARP_LS013B7DH03
+/* Then include the kit specific display configuration files which also includes
+   the application specific configuration file and further selects which modules
+   modules to include below. */
 
+#include "displaypalconfig.h"
+#include "displayconfig.h"
+#endif
+
+#ifdef INCLUDE_DISPLAY_SHARP_LS013B7DH03
 #include "displayls013b7dh03config.h"
-#include "displayls013b7dh03.h"
+#endif
 
-#define TEXTDISPLAY_FONT_8x8
+#ifdef INCLUDE_DISPLAY_SHARP_LS013B7DH06
+#include "displayls013b7dh06config.h"
+#endif
 
-/**
- * Maximum number of display devices the display module is configured
- * to support. This number may be increased if the system includes more than
- * one display device. However, the number should be kept low in order to
- * save memory.
- */
-#define DISPLAY_DEVICES_MAX   (1)
+#ifdef INCLUDE_TEXTDISPLAY_SUPPORT
+#include "textdisplayconfig.h"
+#include "retargettextdisplayconfig.h"
+#endif
 
-/**
- * Geometry of display device #0 in the system. Display device #0 on this kit
- * is the SHARP Memory LCD LS013B7DH03 which has 128x128 pixels.
- * These defines can be used to declare static framebuffers in order to save
- * extra memory consumed by malloc.
- */
-#define DISPLAY0_WIDTH    (LS013B7DH03_WIDTH)
-#define DISPLAY0_HEIGHT   (LS013B7DH03_HEIGHT)
-
-/**
- * Define all display device driver initialization functions here.
- */
-#define DISPLAY_DEVICE_DRIVER_INIT_FUNCTIONS \
-  {                                          \
-    DISPLAY_Ls013b7dh03Init,                 \
-    NULL                                     \
-  }
-
-#endif /* __SILICON_LABS_DISPLAYCONFIG_H__ */
+#endif /* __DISPLAYCONFIGALL_H */

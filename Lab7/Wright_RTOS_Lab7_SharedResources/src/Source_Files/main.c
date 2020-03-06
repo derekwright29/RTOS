@@ -126,12 +126,12 @@ OS_Q ITC_Queue;
 
 /* Task main functions*/
 
-void (*task_array[])(void) = {  create_idle_task,
-								create_lcd_task,
+void (*task_array[])(void) = {  create_lcd_task,
 								create_vehicle_monitor_task,
 								create_led_task,
 								create_vehicle_speed_task,
 								create_vehicle_dir_task,
+								create_idle_task,
 								};
 
 #define NUM_TASKS_TO_START		sizeof(task_array)/sizeof(void *)
@@ -262,7 +262,6 @@ static  void  MainStartTask (void  *p_arg)
 	/* Create OS Constructs Necessary for given tasks */
 	create_capsense_sem();
 	create_capsense_timer();
-
 	button_create_osFlag();
 
 	// start all the tasks listed above in this file.

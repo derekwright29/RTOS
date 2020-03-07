@@ -17,7 +17,7 @@
  * Vehicle Tasks defines
  ***********************/
 /* Vehicle Monitor Task*/
-#define VEHICLE_MONITOR_TASK_PRIO					24u
+#define VEHICLE_MONITOR_TASK_PRIO					27u
 #define VEHICLE_MONITOR_TASK_STK_SIZE				1024u
 CPU_STK  VehicleMonitorTaskStk[VEHICLE_MONITOR_TASK_STK_SIZE];
 OS_TCB   VehicleMonitorTaskTCB;
@@ -37,10 +37,12 @@ OS_TCB   DirectionTaskTCB;
 /**
  * Logic/Operational Defines
  */
-#define NO_CHANGE_TIMEOUT  				5000	// in ms = 5sec
+#define NO_CHANGE_TIMEOUT  						5000		// in ms = 5sec
+#define NO_CHANGE_MS_TO_TICKS(ms)				ms/100		// each timer tick is 100 ms
+#define NO_CHANGE_TICKS							(OS_TICK) NO_CHANGE_MS_TO_TICKS(NO_CHANGE_TIMEOUT)
 
-#define DIRECTION_TASK_PERIOD			50		// in ms
-#define DIRECTION_TASK_PERIOD_TICKS		1
+#define DIRECTION_TASK_PERIOD			500		// in ms
+#define DIRECTION_TASK_PERIOD_TICKS		500		// timeDly ticks are in ms.
 
 #define SPEED_INCREMENT					5		// in mph
 #define SPEED_LIMIT						75
@@ -51,7 +53,7 @@ OS_TCB   DirectionTaskTCB;
  * Vehicle Type Defines
  ** ***********************/
 typedef struct VehicleSpeed {
-	uint8_t speed_cnt;
+	int16_t speed_cnt;
 	uint8_t inc_cnt;
 	uint8_t dec_cnt;
 	int16_t speed;
@@ -74,7 +76,7 @@ typedef enum Direction {
 
 typedef struct VehicleDir {
 	Direction_t dir;
-	time_t      time_since_change;
+	uint16_t    time_since_change;
 	uint16_t    left_cnt;
 	uint16_t    right_cnt;
 }VehicleDir_t;
@@ -86,7 +88,7 @@ typedef enum VehicleAlert {
 	ALERT_TURN_SPEED_LIMIT = 4,
 	ALERT_NO_ALERT = 8,
 }VehicleAlert_t;
-#define ALERT_FLAGS_ALL 	(ALERT_DIRECTION_TIMEOUT | ALERT_SPEED_LIMIT | ALERT_TURN_SPEED_LIMIT)
+#define ALERT_FLAGS_ALL 	(ALERT_DIRECTION_TIMEOUT | ALERT_SPEED_LIMIT | ALERT_TURN_SPEED_LIMIT | ALERT_NO_ALERT)
 
 /*************************
  * LOCAL GLOBAL VARIABLES
@@ -161,6 +163,19 @@ VehicleAlert_t vehicle_get_alert(int16_t speed, Direction_t dir);
 void create_vehicle_monitor_task(void);
 
 /**
+ * speed_task_init()
+ * ----------------
+ * @description This function inits the constructs necessary for the speed task
+ *
+ * @param	None
+ *
+ * @return	None
+ *
+ */
+
+void speed_task_init(void);
+
+/**
  * VehicleSpeedTask()
  * ----------------
  * @description This function is the main function of the Speed Task
@@ -173,6 +188,18 @@ void create_vehicle_monitor_task(void);
 void VehicleSpeedTask(void * p_arg);
 
 
+/**
+ * direction_task_init()
+ * ----------------
+ * @description This function inits the constructs necessary for the direction task
+ *
+ * @param	None
+ *
+ * @return	None
+ *
+ */
+
+void direction_task_init(void);
 
 /**
  * decideDirection()
@@ -217,6 +244,31 @@ void VehicleDirectionTask(void * p_arg);
 void AlertTimerCallback(void);
 
 /**
+ * create_alert_timer()
+ * ----------------
+ * @description This function inits the alert timer for no change in direction
+ *
+ * @param	None
+ *
+ * @return	None
+ *
+ */
+
+void create_alert_timer(void );
+
+/**
+ * monitor_task_init()
+ * ----------------
+ * @description This function inits the constructs necessary for the monitor task
+ *
+ * @param	None
+ *
+ * @return	None
+ *
+ */
+void monitor_task_init(void);
+
+/**
  * VehicleMonitorTask()
  * ----------------
  * @description This function is the main function of the Monitor Task
@@ -228,6 +280,18 @@ void AlertTimerCallback(void);
  */
 void VehicleMonitorTask(void * p_arg);
 
+/**
+ * create_vehicle_flags()
+ * ----------------
+ * @description This function creates all the flag groups used by multiple tasks
+ * 				To be called in the main task so that no race conditions exist with accessing the flags
+ *
+ * @param	None
+ *
+ * @return	None
+ *
+ */
+void create_vehicle_flags(void);
 
 
 #endif /* SRC_HEADER_FILES_VEHICLE_H_ */

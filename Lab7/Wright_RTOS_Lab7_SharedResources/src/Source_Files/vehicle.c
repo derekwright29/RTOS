@@ -29,12 +29,12 @@ void create_vehicle_speed_task() {
 
 void create_vehicle_dir_task() {
 	RTOS_ERR err;
-	OSTaskCreate(&VehicleMonitorTaskTCB,                          /* Create the Direction Task.                               */
+	OSTaskCreate(&DirectionTaskTCB,                          /* Create the Direction Task.                               */
 				 "Direction Task",
 				 VehicleDirectionTask,
 				  DEF_NULL,
 				  DIRECTION_TASK_PRIO,
-				 &VehicleMonitorTaskStk[0],
+				 &DirectionTaskStk[0],
 				 (DIRECTION_TASK_STK_SIZE / 10u),
 				 DIRECTION_TASK_STK_SIZE,
 				  0u,
@@ -71,16 +71,6 @@ void speed_task_init(){
 	vehicle_speed.inc_cnt = 0;
 	vehicle_speed.speed_cnt = 0;
 	vehicle_speed.speed = SPEED_INCREMENT*vehicle_speed.speed_cnt;
-
-	//init buttons
-	gpio_open();
-
-	//Create Flag
-	OSFlagCreate(&speed_flags,
-				 "Speed Flag Group",
-				 0,
-				 &err);
-	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
 	//Create Sem
 	OSSemCreate(&speed_change_sem,
@@ -148,17 +138,11 @@ void VehicleSpeedTask(void * p_arg) {
 }
 
 void direction_task_init() {
-	// create_speed_flag
 	RTOS_ERR err;
-	//Create Flag
-	OSFlagCreate(&dir_flags,
-				"Direction Flag Group",
-				0,
-				&err);
-	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 	OSMutexCreate(&dir_mutex,
 				  "Direction Data Mutex",
 				  &err);
+	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
 }
 
@@ -177,7 +161,7 @@ void VehicleDirectionTask(void * p_arg) {
 			cur_dir = decideDirection(cap_state);
 		}
 		//acquire mutex to allow us to change vehicle_dir struct
-		OSMutexPend(&speed_mutex,
+		OSMutexPend(&dir_mutex,
 					0,
 					OS_OPT_PEND_BLOCKING,
 					(CPU_TS*)0,
@@ -231,7 +215,21 @@ Direction_t decideDirection(bool * state_array) {
 		return DIR_STRAIGHT;
 }
 
-void init_monitor_task() {
+void create_alert_timer() {
+	RTOS_ERR err;
+	//Create Timer
+	OSTmrCreate(&no_change_timer,
+				"Alert Timer",
+				NO_CHANGE_TICKS,
+				0,
+				OS_OPT_TMR_ONE_SHOT,
+				(OS_TMR_CALLBACK_PTR)AlertTimerCallback,
+				DEF_NULL,
+				&err);
+		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+}
+
+void monitor_task_init() {
 	RTOS_ERR err;
 	//Create Timer
 	OSTmrCreate(&no_change_timer,
@@ -243,15 +241,13 @@ void init_monitor_task() {
 				DEF_NULL,
 				&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
-
-
 }
 
 VehicleAlert_t vehicle_get_alert(int16_t speed, Direction_t dir) {
-	if (speed > 75 || speed < -75) {
+	if (speed > SPEED_LIMIT || speed < -SPEED_LIMIT) {
 		return ALERT_SPEED_LIMIT;
 	}
-	else if ((speed > 45 && dir != DIR_STRAIGHT) || (speed < -45 && dir != DIR_STRAIGHT)) {
+	else if ((speed > TURN_SPEED_LIMIT && dir != DIR_STRAIGHT) || (speed < -TURN_SPEED_LIMIT && dir != DIR_STRAIGHT)) {
 		return ALERT_TURN_SPEED_LIMIT;
 	}
 	return ALERT_NO_ALERT;
@@ -270,7 +266,6 @@ void VehicleMonitorTask(void * p_arg) {
 	RTOS_ERR err;
 	bool got_dir = false;
 	bool got_spd = false;
-	init_monitor_task();
 	OSTmrStart(&no_change_timer,
 			&err);
 	// blocking variables to allow the Pends() to be non_blocking
@@ -290,7 +285,7 @@ void VehicleMonitorTask(void * p_arg) {
 							DEF_NULL,
 							&err);
 		/*   Check error code.                           */
-		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+		APP_RTOS_ASSERT_DBG(((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE)||(RTOS_ERR_CODE_GET(err) == RTOS_ERR_WOULD_BLOCK)), 1);
 		if (cur_dir) {
 			got_dir = true;
 		}
@@ -301,7 +296,7 @@ void VehicleMonitorTask(void * p_arg) {
 						DEF_NULL,
 						&err);
 		/*   Check error code.                           */
-		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+		APP_RTOS_ASSERT_DBG(((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE)||(RTOS_ERR_CODE_GET(err) == RTOS_ERR_WOULD_BLOCK)), 1);
 		if (cur_spd){
 			got_spd = true;
 		}
@@ -320,3 +315,29 @@ void VehicleMonitorTask(void * p_arg) {
 		}
 	} //end while
 } // end monitor task
+
+void create_vehicle_flags() {
+	RTOS_ERR err;
+
+	//Create Speed Flag
+	OSFlagCreate(&speed_flags,
+				 "Speed Flag Group",
+				 0,
+				 &err);
+	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+
+	//Create Dir Flag
+	OSFlagCreate(&dir_flags,
+				"Direction Flag Group",
+				0,
+				&err);
+	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+
+	//Create Alert Flag
+	OSFlagCreate(&alert_flags,
+				 "Alerts Flag Group",
+				 0,
+				 &err);
+	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+
+}

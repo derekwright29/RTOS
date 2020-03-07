@@ -42,7 +42,6 @@ void LCDTask(void *p_arg) {
 	int16_t cur_spd = 0;
 	Direction_t cur_dir = DIR_STRAIGHT;
 	bool updated = true;
-	uint8_t len;
 	lcd_init();
 	while(1) {
 		if ((cur_dir != vehicle_dir.dir) || (cur_spd != vehicle_speed.speed)) {
@@ -51,8 +50,7 @@ void LCDTask(void *p_arg) {
 			cur_spd = vehicle_speed.speed;
 		}
 		if (!updated) {
-			len = sprintf(speed_str, "The current speed is %d mph", vehicle_speed.speed);
-			GLIB_drawString(&gc, speed_str, len, 1, 45, true);
+			printf(speed_str, "The current speed is %d mph\n", vehicle_speed.speed);
 			switch(vehicle_dir.dir) {
 				case DIR_FAR_LEFT:
 					strcpy(dir_substr, "Hard Left");
@@ -73,11 +71,9 @@ void LCDTask(void *p_arg) {
 					strcpy(dir_substr, "Unknown!");
 					break;
 			}
-			len = sprintf(dir_str, "The current direction is %s", dir_substr);
-			GLIB_drawString(&gc, speed_str, len, 1, 60, true);
+			printf(dir_str, "The current direction is %s\n", dir_substr);
 
-			/* Update display */
-			DMD_updateDisplay();
+			/* Updated display */
 			updated = true;
 		}
 		OSTimeDly(LCD_PERIOD_TICKS,
@@ -88,31 +84,34 @@ void LCDTask(void *p_arg) {
 } // end LCD task
 
 void lcd_init() {
-	EMSTATUS status;
+//	EMSTATUS status;
 
-	/* Initialize display module */
-	status = DISPLAY_Init();
-	if (DISPLAY_EMSTATUS_OK != status) {
-	while (true)
-	  ;
+//	/* Initialize display module */
+//	status = DISPLAY_Init();
+//	if (DISPLAY_EMSTATUS_OK != status) {
+//	while (true)
+//	  ;
+//	}
+//
+//	/* Initialize the DMD module for the DISPLAY device driver. */
+////	status = DMD_init(0);
+////	if (DMD_OK != status) {
+////		while (true)
+////			;
+////	}
+//
+//	status = GLIB_contextInit(&gc);
+//	if (GLIB_OK != status) {
+//		while (true)
+//			;
+//	}
+
+	/* Initialize the display module. */
+	DISPLAY_Init();
+
+	/* Retarget stdio to a text display. */
+	if (RETARGET_TextDisplayInit() != TEXTDISPLAY_EMSTATUS_OK) {
+	while (1) ;
 	}
-
-	/* Initialize the DMD module for the DISPLAY device driver. */
-	status = DMD_init(0);
-	if (DMD_OK != status) {
-		while (true)
-			;
-	}
-
-	status = GLIB_contextInit(&gc);
-	if (GLIB_OK != status) {
-		while (true)
-			;
-	}
-
-	GLIB_setFont(&gc, (GLIB_Font_t *)&GLIB_FontNormal8x8);
-	gc.backgroundColor = White;
-	gc.foregroundColor = Black;
-	GLIB_clear(&gc);
 
 }

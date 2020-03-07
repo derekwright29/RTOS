@@ -41,7 +41,7 @@
 #include "vehicle.h"
 #include "lcd.h"
 #include "general_tasks.h"
-
+#include  <kernel/include/os.h>
 /* Control the mode of operation of main: use interrupts (1) or not (0)? */
 #define LAB2_USE_INTERRUPTS		1
 

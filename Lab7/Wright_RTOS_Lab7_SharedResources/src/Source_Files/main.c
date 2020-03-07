@@ -58,6 +58,7 @@
 #include "buttons.h"
 #include "led_driver.h"
 #include "vehicle.h"
+#include "general_tasks.h"
 #include "../cpu_cfg_local.h"
 
 /*
@@ -251,31 +252,28 @@ static  void  MainStartTask (void  *p_arg)
     BSP_LedsInit();
 
 
-
-    // Create Q
-	OSQCreate(&ITC_Queue,
-		   "Inter-Task Message Queue",
-			20,
-			&glob_err);
-	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(glob_err) == RTOS_ERR_NONE), 1);
+    gpio_open();
 
 	/* Create OS Constructs Necessary for given tasks */
 	create_capsense_sem();
 	create_capsense_timer();
 	button_create_osFlag();
+	create_vehicle_flags();
+
+	create_alert_timer();
+//	OSTmrStart(&no_change_timer, &glob_err);
 
 	// start all the tasks listed above in this file.
-	for (uint8_t i = 0; i < NUM_TASKS_TO_START; i++) {
-		task_array[i]();
-	}
+//	for (uint8_t i = 0; i < NUM_TASKS_TO_START; i++) {
+//		task_array[i]();
+//	}
 
-
-//	create_button_task();
-
-
-//    create_capsense_task();
-
-//     create_led_task();
+//	create_idle_task();
+//	create_vehicle_monitor_task();
+//	create_vehicle_speed_task();
+//	create_vehicle_dir_task();
+	create_lcd_task();
+//	create_led_task();
 
 
 }

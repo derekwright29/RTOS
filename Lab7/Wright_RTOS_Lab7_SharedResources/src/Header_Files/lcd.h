@@ -13,6 +13,8 @@
 #include <glib_color.h>
 #include "display.h"
 #include "dmd.h"
+#include "textdisplay.h"
+#include "retargettextdisplay.h"
 
 /************************/
 /* Task Defines			*/
@@ -26,7 +28,7 @@ OS_TCB   LcdTaskTCB;
  * Logical/Operational defines  *
  ********************************/
 #define LCD_PERIOD						100 //in ms
-#define LCD_PERIOD_TICKS				2
+#define LCD_PERIOD_TICKS				100
 
 #define DIR_STR_MAX_LENGTH				36
 #define SPEED_STR_MAX_LENGTH			30

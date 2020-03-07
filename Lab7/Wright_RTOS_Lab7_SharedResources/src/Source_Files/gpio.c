@@ -8,6 +8,7 @@
 #include "vehicle.h"
 #include "lab7.h"
 
+//extern InputFifo_t FIFO_Button1;
 
 
 //***********************************************************************************

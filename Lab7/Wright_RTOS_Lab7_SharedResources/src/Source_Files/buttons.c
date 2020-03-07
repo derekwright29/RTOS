@@ -9,6 +9,8 @@
 #include "buttons.h"
 #include "fifo.h"
 #include  <stdint.h>
+#include "lab7.h"
+#include  <kernel/include/os.h>
 
 void ButtonTask()
 {

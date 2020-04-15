@@ -1,0 +1,6 @@
+eclipse.preferences.version=1
+environment/project/com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt.debug\#com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt\:7.2.1.20170904/PROJ_PATH/delimiter=\:
+environment/project/com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt.debug\#com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt\:7.2.1.20170904/PROJ_PATH/operation=append
+environment/project/com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt.debug\#com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt\:7.2.1.20170904/PROJ_PATH/value=$HOME/SimplicityStudio/v4_workspace/SLSTK3402A_glib_2
+environment/project/com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt.debug\#com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt\:7.2.1.20170904/append=true
+environment/project/com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt.debug\#com.silabs.ss.tool.ide.arm.toolchain.gnu.cdt\:7.2.1.20170904/appendContributed=true

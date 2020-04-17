@@ -8,11 +8,12 @@
 #ifndef SRC_HEADER_FILES_LCD_H_
 #define SRC_HEADER_FILES_LCD_H_
 
-#include "lab7.h"
+#include "phys_model.h"
 #include <glib.h>
 #include <glib_color.h>
 #include "display.h"
 #include "dmd.h"
+#include "final_proj.h"
 #include "textdisplay.h"
 #include "retargettextdisplay.h"
 
@@ -40,6 +41,7 @@ OS_TCB   LcdTaskTCB;
  ************************/
 /* Global glib context */
 GLIB_Context_t gc;
+
 
 
 /**

@@ -43,8 +43,8 @@
 #include  <common/include/lib_def.h>
 #include  <common/include/rtos_utils.h>
 #include  <common/include/toolchains.h>
+#include <final_proj.h>
 #include "fifo.h"
-#include <lab7.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include "em_device.h"

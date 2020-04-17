@@ -30,6 +30,7 @@
 #define  CAP_STATE_MASK			0x3
 
 bool capsenseIsPressed[CSEN_CHANNELS];
+float capsense_turn_value;
 extern OS_Q ITC_Queue;
 
 

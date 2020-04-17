@@ -203,11 +203,10 @@ int  main (void)
 *********************************************************************************************************
 */
 
-
 RTOS_ERR  glob_err;
 static  void  MainStartTask (void  *p_arg)
 {
-
+	EMSTATUS status;
     PP_UNUSED_PARAM(p_arg);                                     /* Prevent compiler warning.                            */
 
     Common_Init(&glob_err);                                          /* Call common module initialization example.           */
@@ -217,6 +216,7 @@ static  void  MainStartTask (void  *p_arg)
                                                                 /* ... will register all the hardware controller to ... */
                                                                 /* ... the platform manager at this moment.             */
     BSP_LedsInit();
+
 
 
     gpio_open();

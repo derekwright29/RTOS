@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <time.h>
 #include <stdbool.h>
+#include <math.h>
 #include "em_device.h"
 #include "em_chip.h"
 #include "em_emu.h"

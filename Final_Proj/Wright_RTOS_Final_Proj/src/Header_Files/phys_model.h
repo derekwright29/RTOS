@@ -1,6 +1,7 @@
 #include <math.h>
 #include <stdint.h>
-#include "my_vect.h"
+
+#include "Header_Files/my_vect.h"
 #define TIME_STEP       0.1 //seconds
 
 #define G               9.8  //m/s^2
@@ -25,7 +26,7 @@ typedef struct RoadLayout		// Purple items are only relevant for specific 3-D en
 	int16_t x;			// m
 	int16_t y;			// m
 	}* Waypoints;				// Array of waypoints.  First and last 2 are not to be driven
-};
+}road_description_t;
 
 typedef enum road_conditions {
     ASPHALT = 5,
@@ -71,7 +72,8 @@ typedef struct physics_params {
 
 
 
-vehicle_warning_t phys_model_take_step(phys_model_t * p_model, vect_t power_applied, float turn);
+vehicle_warning_t phys_model_take_step(phys_model_t * p_model, vect_t power_applied, float turn, road_condition_t road_cond);
 
 
 float get_friction(road_condition_t cond, tire_t tire_typ);
+vehicle_warning_t check_slip(float);

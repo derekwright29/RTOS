@@ -1,8 +1,9 @@
-#include "my_vect.h"
+#include <my_vect.h>
+#include <math.h>
 
 
 float vect_mag(vect_t vector) {
-    return sqrt((vector.x)**2 + (vector.y**2));
+    return sqrt(pow((vector.x),2) + pow(vector.y,2));
 }
 
 vect_t vect_parallel(float magnitude, vect_t reference_vect) {

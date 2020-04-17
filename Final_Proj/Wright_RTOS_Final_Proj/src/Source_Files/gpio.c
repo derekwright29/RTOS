@@ -7,8 +7,8 @@
 #include "fifo.h"
 #include "buttons.h"
 #include "vehicle.h"
-#include "lab7.h"
 #include <common/include/rtos_utils.h>
+#include <final_proj.h>
 
 // declaration to allow entering critical sections
 CORE_DECLARE_IRQ_STATE;

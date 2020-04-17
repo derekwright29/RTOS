@@ -6,7 +6,7 @@
  */
 
 
-#include <lab7.h>
+#include <final_proj.h>
 #include "buttons.h"
 #include "mycapsense.h"
 #include  <kernel/include/os.h>

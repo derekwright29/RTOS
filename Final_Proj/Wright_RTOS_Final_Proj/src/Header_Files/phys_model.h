@@ -1,14 +1,31 @@
+#ifndef __PHYS_MODEL_H
+#define __PHYS_MODEL_H
+
 #include <math.h>
 #include <stdint.h>
+#include "my_vect.h"
+#include "mycapsense.h"
+#include "lcd.h"
 
-#include "Header_Files/my_vect.h"
-#define TIME_STEP       0.1 //seconds
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+
+extern float capsense_turn_value;
+
+/**************************************************************************************/
+/* Physics/ Vehicle Description
+ * *************************************************************************************/
+
+#define PHYS_MODEL_TIME_STEP       0.1 //seconds
 
 #define G               9.8  //m/s^2
 
 #define DEFAULT_MU       .1
 
-#define PHYSICS_MODEL_STRUCT_DEFAULT  {0,0,0,0,0,0}
+
+#define PHYSICS_MODEL_STRUCT_DEFAULT  {(vect_t){0,0},(vect_t){0,0},(vect_t){0,0},(vect_t){0,0},(vect_t){0,0},(vect_t){0,0},(vect_t){0,0},\
+											NULL, ASPHALT}
 
 typedef enum tire_type {
     TOURISM = 1,
@@ -37,8 +54,9 @@ typedef enum road_conditions {
 }road_condition_t;
 
 typedef enum vehicle_warning {
-    SLIP_ERROR,
-    ROAD_ERROR
+	NO_ERROR = 0,
+    SLIP_ERROR = 1,
+    ROAD_ERROR = 2
 }vehicle_warning_t;
 
 typedef struct vehicle_info_struct
@@ -65,15 +83,48 @@ typedef struct physics_params {
     //el, roll, will always be zero for me
     vect_t forw_a,turn_a,v,p,az,el,roll;
     vehicle_description_t * vehicle;
+    road_condition_t road;
 }phys_model_t;
 
+/************************************
+ * End Physics/Vehicle Description
+ * **************************************************/
+
+
+/*******************************************************************************************************************************
+ * Vehicle Tasks defines
+ ***********************/
+/* Vehicle Monitor Task*/
+#define PHYSICS_MODEL_TASK_PRIO					25u
+#define PHYSICS_MODEL_TASK_STK_SIZE				1024u
+CPU_STK  PhysicsModelTaskStk[PHYSICS_MODEL_TASK_STK_SIZE];
+OS_TCB   PhysicsModelTaskTCB;
+
+void create_physics_model_task(void);
+void PhysicsModelTask(void *p_arg);
+
+/********************************************************************************************************
+ * End Task-specific Description
+ * *******************************************************************************************************/
+
+
+/********************************************************************************************************
+ * Globals needed
+ * *******************************************************************************************************/
+vehicle_description_t vehicle_desc;
+extern phys_model_t vehicle_model;
+road_condition_t road_cond;
 
 
 
+/********************************************************************************************************
+ * Function Prototypes
+ * *******************************************************************************************************/
 
-
-vehicle_warning_t phys_model_take_step(phys_model_t * p_model, vect_t power_applied, float turn, road_condition_t road_cond);
+vehicle_warning_t phys_model_take_step(phys_model_t * p_model, vect_t power_applied, float turn);
 
 
 float get_friction(road_condition_t cond, tire_t tire_typ);
-vehicle_warning_t check_slip(float);
+vehicle_warning_t check_slip(float, float);
+
+#endif /* __PHYS_MODEL_H */

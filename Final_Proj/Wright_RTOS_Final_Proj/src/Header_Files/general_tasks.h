@@ -10,7 +10,7 @@
 
 #include  <kernel/include/os.h>
 #include "em_emu.h"
-#include "lab7.h"
+#include "final_proj.h"
 
 #define IDLE_TASK_PRIO							30u
 #define IDLE_TASK_STK_SIZE					1024u

@@ -5,5 +5,5 @@
  *      Author: goat
  */
 
-#include "lab7.h"
+#include <final_proj.h>
 

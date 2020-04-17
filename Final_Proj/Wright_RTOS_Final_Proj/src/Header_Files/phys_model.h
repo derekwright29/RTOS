@@ -90,7 +90,21 @@ typedef struct physics_params {
  * End Physics/Vehicle Description
  * **************************************************/
 
+/*******************************************************************************************************************************
+ * Vehicle Tasks defines
+ ***********************/
+/* Vehicle Monitor Task*/
+#define PHYSICS_MODEL_TASK_PRIO					25u
+#define PHYSICS_MODEL_TASK_STK_SIZE				1024u
+CPU_STK  PhysicsModelTaskStk[PHYSICS_MODEL_TASK_STK_SIZE];
+OS_TCB   PhysicsModelTaskTCB;
 
+void create_physics_model_task(void);
+void PhysicsModelTask(void *p_arg);
+
+/********************************************************************************************************
+ * End Task-specific Description
+ * *******************************************************************************************************/
 /*******************************************************************************************************************************
  * Vehicle Tasks defines
  ***********************/

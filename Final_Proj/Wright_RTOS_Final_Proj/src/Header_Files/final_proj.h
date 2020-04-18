@@ -41,6 +41,7 @@
 #include "led_driver.h"
 #include "vehicle.h"
 #include "lcd.h"
+#include "my_vect.h"
 #include "general_tasks.h"
 #include  <kernel/include/os.h>
 #include <common/include/rtos_utils.h>

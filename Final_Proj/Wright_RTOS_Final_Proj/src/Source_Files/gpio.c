@@ -73,7 +73,7 @@ void GPIO_EVEN_IRQHandler(void) {
 		InputFifo_Put(&FIFO_Button0, (InputValue_t) BUTTON_RELEASED);
 		CORE_CRITICAL_IRQ_ENABLE();
 		// Post to semaphore to indicate a state has changed.
-		OSSemPost(&speed_change_sem,
+		OSSemPost(&button_sem,
 				OS_OPT_POST_1,
 				&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
@@ -90,7 +90,7 @@ void GPIO_ODD_IRQHandler(void) {
 		InputFifo_Put(&FIFO_Button1, (InputValue_t)BUTTON_RELEASED);
 		CORE_CRITICAL_IRQ_ENABLE();
 		// Post to semaphore to indicate a state has changed.
-		OSSemPost(&speed_change_sem,
+		OSSemPost(&button_sem,
 				OS_OPT_POST_1,
 				&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);

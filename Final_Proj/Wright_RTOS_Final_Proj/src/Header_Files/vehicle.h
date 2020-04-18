@@ -96,13 +96,15 @@ typedef enum VehicleAlert {
 /*************************
  * LOCAL GLOBAL VARIABLES
  ************************/
-OS_FLAG_GRP speed_flags;
-OS_FLAG_GRP dir_flags;
+OS_FLAG_GRP accel_flags;
+OS_FLAG_GRP turn_flags;
 OS_FLAG_GRP alert_flags;
 
-OS_SEM speed_change_sem;
-OS_MUTEX speed_mutex;
-OS_MUTEX dir_mutex;
+
+OS_SEM phys_model_update_sem;
+OS_SEM button_sem;
+OS_MUTEX accel_mutex;
+OS_MUTEX turn_mutex;
 
 OS_TMR no_change_timer;
 

@@ -9,6 +9,7 @@
 
 #ifndef M_PI
     #define M_PI 3.14159265358979323846
+	#define M_PI_2		1.57079632679489661923
 #endif
 
 extern float capsense_turn_value;
@@ -21,19 +22,61 @@ extern float capsense_turn_value;
 
 #define G               9.8  //m/s^2
 
-#define DEFAULT_MU       .1
+#define DEFAULT_MU       .05
 
 
-#define PHYSICS_MODEL_STRUCT_DEFAULT  {(vect_t){0,0},(vect_t){0,0},(vect_t){0,0},(vect_t){0,0},(vect_t){0,0},(vect_t){0,0},(vect_t){0,0},\
-											NULL, ASPHALT}
+#define PHYSICS_MODEL_STRUCT_DEFAULT  {(vect_t){0,0},(vect_t){0,0},(vect_t){0,0},(vect_t){64,64},\
+											(float)-M_PI_2, (float)0.0, (float)0.0,\
+											NULL, ASPHALT}		// veh_desc, road_cond
+
+#define VEHICLE_DESC_STRUCT_DEFAULT {"Clunker",\
+										1234,\
+										93,\
+										10,\
+										595,\
+										170,\
+										616,\
+										TOURISM\
+										}
+
+#define VEHICLE_DESC_STRUCT_CLUNKER {"Clunker",\
+										1234,\
+										93,\
+										10,\
+										595,\
+										170,\
+										616,\
+										TOURISM\
+										}
+
+#define VEHICLE_DESC_STRUCT_SPORT {"Sport's Car",\
+										834,\
+										180,\
+										20,\
+										395,\
+										170,\
+										216,\
+										HIGH_PERF\
+										}
+#define VEHICLE_DESC_STRUCT_TRUCK {"Truck",\
+										2234,\
+										250,\
+										20,\
+										895,\
+										200,\
+										316,\
+										TRUCK\
+										}
+
+
 
 typedef enum tire_type {
     TOURISM = 1,
-    TRUCK = 2,
-    HIGH_PERF=3
+	HIGH_PERF = 2,
+    TRUCK =3
 }tire_t;
 
-
+// TODO: move to road_gen.h/c
 typedef struct RoadLayout		// Purple items are only relevant for specific 3-D enhancements.
 {
 	char Name[16];			// null terminated
@@ -46,11 +89,11 @@ typedef struct RoadLayout		// Purple items are only relevant for specific 3-D en
 }road_description_t;
 
 typedef enum road_conditions {
-    ASPHALT = 5,
-    EARTH = 4,
+    ASPHALT = 1,
+    EARTH = 2,
     GRAVEL = 3,
-    SAND = 2,
-    ICE = 1
+    SAND = 4,
+    ICE = 5
 }road_condition_t;
 
 typedef enum vehicle_warning {
@@ -59,18 +102,21 @@ typedef enum vehicle_warning {
     ROAD_ERROR = 2
 }vehicle_warning_t;
 
+
+//TODO: move to vehicle.h once you delete all the lab7 stuff.
 typedef struct vehicle_info_struct
 {
 	char VehicleName[16];	// null terminated
 	uint16_t Mass;		// kg
 	uint16_t MaxPower;		// kW
+	uint16_t PowerDelta;	//kW
 	uint16_t TurnRadius;		// cm, curb-to-curb
 	uint16_t VehicleWidth;	// cm
 	
 	// Viewing Info, for 3-D POV
-	uint16_t EyeballHeightAboveGround;	// cm
-	uint16_t HorizontalAngleOfView;		// degrees
-	uint16_t ViewInclination;			// degrees (positive=up)
+//	uint16_t EyeballHeightAboveGround;	// cm
+//	uint16_t HorizontalAngleOfView;		// degrees
+//	uint16_t ViewInclination;			// degrees (positive=up)
 
 	// Vehicle characteristics for slippage
 	uint16_t DragArea;				// Cd*CrossSectionalArea as: Cd * Ft^2 * 100
@@ -81,7 +127,8 @@ typedef struct vehicle_info_struct
 
 typedef struct physics_params {
     //el, roll, will always be zero for me
-    vect_t forw_a,turn_a,v,p,az,el,roll;
+    vect_t forw_a,turn_a,v,p;
+	float az,el,roll;
     vehicle_description_t * vehicle;
     road_condition_t road;
 }phys_model_t;
@@ -135,10 +182,13 @@ road_condition_t road_cond;
  * Function Prototypes
  * *******************************************************************************************************/
 
-vehicle_warning_t phys_model_take_step(phys_model_t * p_model, vect_t power_applied, float turn);
+vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_applied, float turn);
 
 
 float get_friction(road_condition_t cond, tire_t tire_typ);
 vehicle_warning_t check_slip(float, float);
+
+
+float decideTurn(bool * state_array);
 
 #endif /* __PHYS_MODEL_H */

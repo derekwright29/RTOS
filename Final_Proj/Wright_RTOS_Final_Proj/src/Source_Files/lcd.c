@@ -12,57 +12,24 @@
 #include "dmd.h"
 #include <common/include/rtos_utils.h>
 
-#define GLIB_FONT_WIDTH   (glibContext.font.fontWidth + glibContext.font.charSpacing)
-#define GLIB_FONT_HEIGHT  (glibContext.font.fontHeight)
-
-/* Center of display */
-#define CENTER_X (glibContext.pDisplayGeometry->xSize / 2)
-#define CENTER_Y (glibContext.pDisplayGeometry->ySize / 2)
-
-#define MAX_X (glibContext.pDisplayGeometry->xSize - 1)
-#define MAX_Y (glibContext.pDisplayGeometry->ySize - 1)
-
-#define MIN_X           0
-#define MIN_Y           0
-
-#define INIT_DEMO_NO    0
-
-#define MAX_STR_LEN     48
-
-/* The GLIB context */
-static GLIB_Context_t   glibContext;
-
-#define CAR_CENTER_Y 	MAX_Y - 10
-#define CAR_CENTER_X 	CENTER_X
-#define CAR_RADIUS 		10
-#define DEG2RAD			3.1415826535 / 180.
 
 
-#define ARROW_LEN				20
-#define ARROW_TIP_LEN			3
-
-#define TIP_LX_BASE		CAR_CENTER_X
-#define TIP_LY_BASE		CAR_CENTER_Y
-
-#define TIP_RADIUS				sqrt(pow((double)ARROW_TIP_LEN,2.) + pow((double)ARROW_LEN-ARROW_TIP_LEN, 2.))
-#define TIP_RADIAN_OFFSET		atan((double)ARROW_TIP_LEN/(double)(ARROW_LEN-ARROW_TIP_LEN))
-
-static EMSTATUS GLIB_drawCar(GLIB_Context_t *pContext, double degrees, bool clear_flag) {
+static EMSTATUS GLIB_drawCar(GLIB_Context_t *pContext, int16_t veh_x, int16_t veh_y, double degrees, bool clear_flag) {
 	EMSTATUS status = GLIB_OK;
 	if(clear_flag)
 		GLIB_clear(pContext);
 
-	int x_rotation = round(CAR_CENTER_X + ARROW_LEN*sin((degrees)*DEG2RAD));
-	int y_rotation = round(CAR_CENTER_Y - ARROW_LEN*cos((degrees)*DEG2RAD));
-	int lx_rotation = round(TIP_LX_BASE +TIP_RADIUS*sin((degrees*DEG2RAD) - TIP_RADIAN_OFFSET));
-	int ly_rotation = round(TIP_LY_BASE -TIP_RADIUS*cos((degrees*DEG2RAD) - TIP_RADIAN_OFFSET));
-	int rx_rotation = round(TIP_LX_BASE +TIP_RADIUS*sin((degrees*DEG2RAD) + TIP_RADIAN_OFFSET));
-	int ry_rotation = round(TIP_LY_BASE -TIP_RADIUS*cos((degrees*DEG2RAD) + TIP_RADIAN_OFFSET));
+	int x_rotation = round(veh_x + ARROW_LEN*sin((degrees)*DEG2RAD));
+	int y_rotation = round(veh_y - ARROW_LEN*cos((degrees)*DEG2RAD));
+	int lx_rotation = round(veh_x +TIP_RADIUS*sin((degrees*DEG2RAD) - TIP_RADIAN_OFFSET));
+	int ly_rotation = round(veh_y -TIP_RADIUS*cos((degrees*DEG2RAD) - TIP_RADIAN_OFFSET));
+	int rx_rotation = round(veh_x +TIP_RADIUS*sin((degrees*DEG2RAD) + TIP_RADIAN_OFFSET));
+	int ry_rotation = round(veh_y -TIP_RADIUS*cos((degrees*DEG2RAD) + TIP_RADIAN_OFFSET));
 
 
-	GLIB_drawCircle(pContext, CAR_CENTER_X, CAR_CENTER_Y, CAR_RADIUS);
+	GLIB_drawCircle(pContext, veh_x, veh_y, CAR_RADIUS);
 
-	GLIB_drawLine(pContext, CAR_CENTER_X, CAR_CENTER_Y, x_rotation, y_rotation);
+	GLIB_drawLine(pContext, veh_x, veh_y, x_rotation, y_rotation);
 
 	GLIB_drawLine(pContext, lx_rotation, ly_rotation, x_rotation, y_rotation);
 	GLIB_drawLine(pContext, rx_rotation, ry_rotation, x_rotation, y_rotation);
@@ -96,59 +63,64 @@ void create_lcd_task() {
 void LCDTask(void *p_arg) {
 	RTOS_ERR err;
 	char dir_substr[DIR_SUBSTR_MAX_LENGTH];
-	char spd_substr[DIR_SUBSTR_MAX_LENGTH];
-	int16_t cur_spd = 0;
-	Direction_t cur_dir = DIR_STRAIGHT;
-	bool updated = true;
+	char spd_substr[SPD_SUBSTR_MAX_LENGTH];
+	float veh_x, veh_y;
 	double degree = 0;
+	float rads, veh_spd;
 	lcd_init();
 	while(1) {
-		if ((cur_dir != vehicle_dir.dir) || (cur_spd != vehicle_speed.speed)) {
-			updated = false;
-			cur_dir = vehicle_dir.dir;
-			cur_spd = vehicle_speed.speed;
+		if (OSSchedLockNestingCtr) {
+			//unlock scheduler
+			OSSchedLockNestingCtr = 0;
 		}
-		if (!updated) {
-			OSSchedLock(&err);
-			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
-			sprintf(spd_substr, "Speed: %d\n", vehicle_speed.speed);
-			switch(vehicle_dir.dir) {
-				case DIR_FAR_LEFT:
-					strcpy(dir_substr, "Hard Left ");
-					degree = -45.;
-					break;
-				case DIR_LEFT:
-					strcpy(dir_substr, "Left      ");
-					degree = -15.;
-					break;
-				case DIR_RIGHT:
-					strcpy(dir_substr, "Right     ");
-					degree = 15.;
-					break;
-				case DIR_FAR_RIGHT:
-					strcpy(dir_substr, "Hard Right");
-					degree = 45.;
-					break;
-				case DIR_STRAIGHT:
-				default:
-					degree = 0.;
-					strcpy(dir_substr, "Straight  ");
-					break;
-			}
-			GLIB_clear(&glibContext);
-			GLIB_drawString(&glibContext, spd_substr, strlen(spd_substr), 5, 5, 0);
-			GLIB_drawString(&glibContext, dir_substr, strlen(dir_substr), 15, 15, 0);
-			GLIB_drawCar(&glibContext, degree, 0);
-//			printf("The current speed is %d mph   \nThe current direction is %s\033H", vehicle_speed.speed, dir_substr);
-			OSSchedUnlock(&err);
-			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
-			/* Updated display */
-			updated = true;
-		}
-		OSTimeDly(LCD_PERIOD_TICKS,
-				OS_OPT_TIME_DLY,
-				&err);
+		OSSemPend(&phys_model_update_sem,
+					0,
+					OS_OPT_PEND_BLOCKING,
+					(CPU_TS*)0,
+					&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+		// get vehicle position
+		veh_x = vehicle_model.p.x;
+		veh_y = vehicle_model.p.y;
+		rads = vehicle_model.az;
+		veh_spd = vect_mag(vehicle_model.v);
+
+		OSSchedLock(&err);
+		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+		sprintf(spd_substr, "Speed: %.2f\n", veh_spd);
+		switch(vehicle_dir.dir) {
+			case DIR_FAR_LEFT:
+				strcpy(dir_substr, "Hard Left ");
+				degree = -45.;
+				break;
+			case DIR_LEFT:
+				strcpy(dir_substr, "Left      ");
+				degree = -15.;
+				break;
+			case DIR_RIGHT:
+				strcpy(dir_substr, "Right     ");
+				degree = 15.;
+				break;
+			case DIR_FAR_RIGHT:
+				strcpy(dir_substr, "Hard Right");
+				degree = 45.;
+				break;
+			case DIR_STRAIGHT:
+			default:
+				degree = 0.;
+				strcpy(dir_substr, "Straight  ");
+				break;
+		} // end switch
+
+		GLIB_clear(&glibContext);
+		GLIB_drawString(&glibContext, spd_substr, strlen(spd_substr), 5, 5, 0);
+//		GLIB_drawString(&glibContext, dir_substr, strlen(dir_substr), 15, 15, 0);
+		GLIB_drawCar(&glibContext, veh_x, veh_y, rads, 0);
+//			printf("The current speed is %d mph   \nThe current direction is %s\033H", vehicle_speed.speed, dir_substr);
+		OSSchedUnlock(&err);
+		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+		/* Updated display */
+
 	} // end while
 } // end LCD task
 

@@ -79,7 +79,7 @@ void VehicleSpeedTask(void * p_arg) {
 	InputValue_t ret;
 	while(1){
 		//wait for speed change. Else sleep
-		OSSemPend(&speed_change_sem,
+		OSSemPend(&button_sem,
 				  0,
 				  OS_OPT_PEND_BLOCKING,
 				  (CPU_TS*)0,
@@ -87,7 +87,7 @@ void VehicleSpeedTask(void * p_arg) {
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
 		//acquire mutex to allow us to change vehicle_speed struct
-		OSMutexPend(&speed_mutex,
+		OSMutexPend(&accel_mutex,
 				    0,
 					OS_OPT_PEND_BLOCKING,
 					(CPU_TS*)0,
@@ -109,13 +109,13 @@ void VehicleSpeedTask(void * p_arg) {
 			vehicle_speed.speed = SPEED_INCREMENT*vehicle_speed.speed_cnt;
 		}
 		// release mutex
-		OSMutexPost(&speed_mutex,
+		OSMutexPost(&accel_mutex,
 					OS_OPT_POST_NONE,		//TODO: test out wiht NO_SCHED. Wait til the flag is set to RESCHEDULE.
 					&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
 		//send flag to monitor task
-		OSFlagPost(&speed_flags,
+		OSFlagPost(&accel_flags,
 					SPEED_CHANGED,
 					OS_OPT_POST_FLAG_SET,
 					&err);
@@ -147,7 +147,7 @@ void VehicleDirectionTask(void * p_arg) {
 			cur_dir = decideDirection(cap_state);
 		}
 		//acquire mutex to allow us to change vehicle_dir struct
-		OSMutexPend(&dir_mutex,
+		OSMutexPend(&turn_mutex,
 					0,
 					OS_OPT_PEND_BLOCKING,
 					(CPU_TS*)0,
@@ -163,7 +163,7 @@ void VehicleDirectionTask(void * p_arg) {
 			OSTmrStart(&no_change_timer, &err);
 			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 			// Post to monitor task we have a new dir.
-			OSFlagPost(&dir_flags,
+			OSFlagPost(&turn_flags,
 						cur_dir,
 						OS_OPT_POST_FLAG_SET,
 						&err);
@@ -172,7 +172,7 @@ void VehicleDirectionTask(void * p_arg) {
 			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 			isChanged = false;
 		}
-		OSMutexPost(&dir_mutex,
+		OSMutexPost(&turn_mutex,
 					OS_OPT_POST_NONE,
 					&err);
 
@@ -246,7 +246,7 @@ VehicleAlert_t vehicle_get_alert(int16_t speed, Direction_t dir, bool isTimeout)
 
 void AlertTimerCallback() {
 	RTOS_ERR err;
-	OSFlagPost(&dir_flags,
+	OSFlagPost(&turn_flags,
 			DIR_TIMEOUT,
 			OS_OPT_POST_FLAG_SET,
 			&err);
@@ -268,7 +268,7 @@ void VehicleMonitorTask(void * p_arg) {
 	while(1) {
 		// this will return 0 or the flags that caused the pend to succeed.
 		// if this pend succeeds (cur_dir != 0), we have a state change, guranteed by direction task.
-		cur_dir = OSFlagPend(&dir_flags,
+		cur_dir = OSFlagPend(&turn_flags,
 							DIR_FLAGS_ALL,
 							0,
 							OS_OPT_PEND_FLAG_SET_ANY + OS_OPT_PEND_FLAG_CONSUME + OS_OPT_PEND_NON_BLOCKING,
@@ -285,7 +285,7 @@ void VehicleMonitorTask(void * p_arg) {
 				isTimeout = false;
 			}
 		}
-		cur_spd = OSFlagPend(&speed_flags,
+		cur_spd = OSFlagPend(&accel_flags,
 						SPEED_CHANGED,
 						0,
 						OS_OPT_PEND_FLAG_SET_ANY + OS_OPT_PEND_FLAG_CONSUME + OS_OPT_PEND_NON_BLOCKING,
@@ -313,9 +313,17 @@ void VehicleMonitorTask(void * p_arg) {
 
 void create_vehicle_semaphores() {
 	RTOS_ERR err;
+
+	//Create Model Sem
+	OSSemCreate(&phys_model_update_sem,
+				"Model Update Semaphore",
+				0,
+				&err);
+	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+
 	//Create Speed Sem
-	OSSemCreate(&speed_change_sem,
-				"Speed Update Semaphore",
+	OSSemCreate(&button_sem,
+				"Accel Update Semaphore",
 				0,
 				&err);
 	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
@@ -326,14 +334,14 @@ void create_vehicle_mutexes() {
 	RTOS_ERR err;
 
 	//Create Speed Mutex
-	OSMutexCreate(&speed_mutex,
-				"Speed Data Mutex",
+	OSMutexCreate(&accel_mutex,
+				"Accel Data Mutex",
 				&err);
 	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
 	//Create Dir Mutex
-	OSMutexCreate(&dir_mutex,
-				  "Direction Data Mutex",
+	OSMutexCreate(&turn_mutex,
+				  "Turn Data Mutex",
 				  &err);
 	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
@@ -344,18 +352,20 @@ void create_vehicle_flags() {
 	RTOS_ERR err;
 
 	//Create Speed Flag
-	OSFlagCreate(&speed_flags,
-				 "Speed Flag Group",
+	OSFlagCreate(&accel_flags,
+				 "Accel Flag Group",
 				 0,
 				 &err);
 	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
 	//Create Dir Flag
-	OSFlagCreate(&dir_flags,
+	OSFlagCreate(&turn_flags,
 				"Direction Flag Group",
 				0,
 				&err);
 	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+
+
 
 	//Create Alert Flag
 	OSFlagCreate(&alert_flags,

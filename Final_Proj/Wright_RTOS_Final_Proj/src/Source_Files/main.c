@@ -57,6 +57,8 @@
 #include "mycapsense.h"
 #include "buttons.h"
 #include "led_driver.h"
+#include "phys_model.h"
+#include "menu.h"
 #include "vehicle.h"
 #include "general_tasks.h"
 #include "../cpu_cfg_local.h"
@@ -93,6 +95,8 @@ volatile uint8_t butt0=1, butt1=1;	// values go to 0 when button is pressed; 1 w
 volatile uint32_t msticks = 0; // gives 4 billion some milliseconds. I do not account for wrapping...
 
 
+extern vehicle_description_t vehicle_desc;
+extern road_condition_t road_cond;
 /*
 *********************************************************************************************************
 *********************************************************************************************************
@@ -206,7 +210,6 @@ int  main (void)
 RTOS_ERR  glob_err;
 static  void  MainStartTask (void  *p_arg)
 {
-	EMSTATUS status;
     PP_UNUSED_PARAM(p_arg);                                     /* Prevent compiler warning.                            */
 
     Common_Init(&glob_err);                                          /* Call common module initialization example.           */
@@ -217,23 +220,21 @@ static  void  MainStartTask (void  *p_arg)
                                                                 /* ... the platform manager at this moment.             */
     BSP_LedsInit();
 
-
-
     gpio_open();
+
+    //simulate menu task
+    vehicle_desc = (vehicle_description_t) VEHICLE_DESC_STRUCT_DEFAULT;
+    road_cond = ASPHALT;
 
 	/* Create OS Constructs Necessary for given tasks */
 	create_vehicle_flags();
 	create_vehicle_semaphores();
 	create_vehicle_mutexes();
-	create_alert_timer();
-	OSTmrStart(&no_change_timer, &glob_err);
-	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(glob_err) == RTOS_ERR_NONE), 1);
-	/* Create all the tasks*/
-	create_vehicle_monitor_task();
-	create_vehicle_speed_task();
-	create_vehicle_dir_task();
-	create_led_task();
-	create_lcd_task();
-	create_idle_task();
+
+	create_menu_task();
+//	create_physics_model_task();
+////	create_led_task();
+//	create_lcd_task();
+//	create_idle_task();
 
 }

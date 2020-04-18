@@ -33,6 +33,7 @@ const vehicle_description_t sport = VEHICLE_DESC_STRUCT_SPORT;
 const vehicle_description_t truck = VEHICLE_DESC_STRUCT_TRUCK;
 
 const vehicle_description_t car_choices[] = {   clunker, sport, truck   };
+const road_condition_t car_choices[] = {   1,2,3,4,5};
 
 
 

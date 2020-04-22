@@ -29,6 +29,8 @@ vect_t vect_get_unitvector(float rads);
 // gets arrow where 0 degrees is defined "straight up" when looking at the screen with buttons on the bottom
 #define vect_LCD_get_unitvector(rad)		vect_get_unitvector(rad - M_PI_2)
 
+float vect_get_heading(vect_t vector);
+
 
 int16_t int_vect_mag(int_vect_t vector);
 int16_t int_vect_inner_prod(int_vect_t vect_a, vect_t vect_b);

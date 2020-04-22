@@ -49,6 +49,11 @@ vect_t vect_get_unitvector(float rads) {
 }
 
 
+float vect_get_heading(vect_t vector) {
+	return atan(vector.y / vector.x);
+}
+
+
 int16_t int_vect_mag(int_vect_t vector){
 	if (vector.x == 0 && vector.y == 0) {
 		return 0;

@@ -165,8 +165,7 @@ void create_game_over_semaphore(void) {
 
 
 void write_menu(uint8_t screen, uint8_t selection, bool select_active) {
-	EMSTATUS status;
-	GLIB_Rectangle_t rect2 = { 0, 20, 127 - 5, 30 };
+
 	switch (screen) {
 		case WELCOME:
 			GLIB_drawString(&menu_context, "Welcome to the Game!", 20,
@@ -257,6 +256,9 @@ void write_gameover(uint8_t screen) {
 }
 
 void toggle_menu_control(void) {
+	create_physics_model_task();
+////	create_led_task();
+	create_lcd_task();
 	return;
 }
 

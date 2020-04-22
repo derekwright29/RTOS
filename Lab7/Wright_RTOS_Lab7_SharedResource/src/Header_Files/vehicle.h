@@ -38,7 +38,7 @@ OS_TCB   DirectionTaskTCB;
  * Logic/Operational Defines
  */
 #define NO_CHANGE_TIMEOUT  						5000		// in ms = 5sec
-#define NO_CHANGE_MS_TO_TICKS(ms)				ms/70		// each timer tick is 100 ms
+#define NO_CHANGE_MS_TO_TICKS(ms)				ms/100		// each timer tick is 100 ms
 #define NO_CHANGE_TICKS							(OS_TICK) NO_CHANGE_MS_TO_TICKS(NO_CHANGE_TIMEOUT)
 
 #define DIRECTION_TASK_PERIOD			100		// in ms

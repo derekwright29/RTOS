@@ -232,9 +232,6 @@ static  void  MainStartTask (void  *p_arg)
 	create_vehicle_mutexes();
 
 	create_menu_task();
-//	create_physics_model_task();
-////	create_led_task();
-//	create_lcd_task();
-//	create_idle_task();
+	create_idle_task();
 
 }

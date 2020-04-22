@@ -4,7 +4,6 @@
  *  Created on: Mar 1, 2020
  *      Author: goat
  */
-
 #ifndef SRC_HEADER_FILES_LCD_H_
 #define SRC_HEADER_FILES_LCD_H_
 
@@ -61,6 +60,7 @@ static GLIB_Context_t   glibContext;
 #define CAR_CENTER_X 	CENTER_X
 #define CAR_RADIUS 		10
 #define DEG2RAD			3.1415826535 / 180.
+#define RAD2DEG			1./DEG2RAD
 
 
 #define ARROW_LEN				20

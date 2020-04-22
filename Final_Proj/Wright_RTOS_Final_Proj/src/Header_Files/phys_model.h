@@ -14,15 +14,29 @@
 
 extern float capsense_turn_value;
 
+
+
+
+/**************************************************************************************/
+/* Typedefs
+ * *************************************************************************************/
+
+
+typedef enum tire_type {
+    TOURISM = 1,
+	HIGH_PERF = 2,
+    TRUCK =3
+}tire_t;
+
 /**************************************************************************************/
 /* Physics/ Vehicle Description
  * *************************************************************************************/
 
-#define PHYS_MODEL_TIME_STEP       0.1 //seconds
+#define PHYS_MODEL_TIME_STEP       0.01 //seconds
 
 #define G               9.8  //m/s^2
 
-#define DEFAULT_MU       .05
+#define DEFAULT_MU       .1
 
 
 #define PHYSICS_MODEL_STRUCT_DEFAULT  {(vect_t){0,0},(vect_t){0,0},(vect_t){0,0},(vect_t){64,64},\
@@ -30,10 +44,10 @@ extern float capsense_turn_value;
 											NULL, ASPHALT}		// veh_desc, road_cond
 
 #define VEHICLE_DESC_STRUCT_DEFAULT {"Clunker",\
-										1234,\
-										93,\
 										10,\
-										595,\
+										1000,\
+										20000,\
+										10,\
 										170,\
 										616,\
 										TOURISM\
@@ -43,7 +57,7 @@ extern float capsense_turn_value;
 										1234,\
 										93,\
 										10,\
-										595,\
+										5,\
 										170,\
 										616,\
 										TOURISM\
@@ -53,7 +67,7 @@ extern float capsense_turn_value;
 										834,\
 										180,\
 										20,\
-										395,\
+										3,\
 										170,\
 										216,\
 										HIGH_PERF\
@@ -62,19 +76,37 @@ extern float capsense_turn_value;
 										2234,\
 										250,\
 										20,\
-										895,\
+										9,\
 										200,\
 										316,\
 										TRUCK\
 										}
 
 
+//TODO: move to vehicle.h once you delete all the lab7 stuff.
+typedef struct vehicle_info_struct
+{
+	char VehicleName[16];	// null terminated
+	uint16_t Mass;		// kg
+	uint16_t MaxSpeed;		// m/s
+	uint16_t PowerDelta;	//kJ/m
+	uint16_t TurnRadius;		// m, curb-to-curb
+	uint16_t VehicleWidth;	// cm
 
-typedef enum tire_type {
-    TOURISM = 1,
-	HIGH_PERF = 2,
-    TRUCK =3
-}tire_t;
+	// Viewing Info, for 3-D POV
+//	uint16_t EyeballHeightAboveGround;	// cm
+//	uint16_t HorizontalAngleOfView;		// degrees
+//	uint16_t ViewInclination;			// degrees (positive=up)
+
+	// Vehicle characteristics for slippage
+	uint16_t DragArea;				// Cd*CrossSectionalArea as: Cd * Ft^2 * 100
+	tire_t TireType;				// 0:truck, 1:tourism, 2:highperformance
+}vehicle_description_t;
+//Note: for road-excursion calculations, vehicle is assumed to have a circular footprint
+
+
+
+
 
 // TODO: move to road_gen.h/c
 typedef struct RoadLayout		// Purple items are only relevant for specific 3-D enhancements.
@@ -103,26 +135,7 @@ typedef enum vehicle_warning {
 }vehicle_warning_t;
 
 
-//TODO: move to vehicle.h once you delete all the lab7 stuff.
-typedef struct vehicle_info_struct
-{
-	char VehicleName[16];	// null terminated
-	uint16_t Mass;		// kg
-	uint16_t MaxPower;		// kW
-	uint16_t PowerDelta;	//kW
-	uint16_t TurnRadius;		// cm, curb-to-curb
-	uint16_t VehicleWidth;	// cm
-	
-	// Viewing Info, for 3-D POV
-//	uint16_t EyeballHeightAboveGround;	// cm
-//	uint16_t HorizontalAngleOfView;		// degrees
-//	uint16_t ViewInclination;			// degrees (positive=up)
 
-	// Vehicle characteristics for slippage
-	uint16_t DragArea;				// Cd*CrossSectionalArea as: Cd * Ft^2 * 100
-	tire_t TireType;				// 0:truck, 1:tourism, 2:highperformance
-}vehicle_description_t;
-//Note: for road-excursion calculations, vehicle is assumed to have a circular footprint
 
 
 typedef struct physics_params {

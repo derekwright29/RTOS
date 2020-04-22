@@ -8,11 +8,10 @@
 #include "lcd.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "display.h"
 #include "dmd.h"
 #include <common/include/rtos_utils.h>
-
-
 
 static EMSTATUS GLIB_drawCar(GLIB_Context_t *pContext, int16_t veh_x, int16_t veh_y, double degrees, bool clear_flag) {
 	EMSTATUS status = GLIB_OK;
@@ -62,17 +61,12 @@ void create_lcd_task() {
 
 void LCDTask(void *p_arg) {
 	RTOS_ERR err;
-	char dir_substr[DIR_SUBSTR_MAX_LENGTH];
-	char spd_substr[SPD_SUBSTR_MAX_LENGTH];
-	float veh_x, veh_y;
-	double degree = 0;
-	float rads, veh_spd;
+	char dir_substr[DIR_SUBSTR_MAX_LENGTH], dir_substr1[DIR_SUBSTR_MAX_LENGTH];
+	char spd_substr[SPD_SUBSTR_MAX_LENGTH], spd_substr1[SPD_SUBSTR_MAX_LENGTH];
+	int16_t veh_x, veh_y;
+	float veh_spd;
 	lcd_init();
 	while(1) {
-		if (OSSchedLockNestingCtr) {
-			//unlock scheduler
-			OSSchedLockNestingCtr = 0;
-		}
 		OSSemPend(&phys_model_update_sem,
 					0,
 					OS_OPT_PEND_BLOCKING,
@@ -80,42 +74,54 @@ void LCDTask(void *p_arg) {
 					&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 		// get vehicle position
-		veh_x = vehicle_model.p.x;
-		veh_y = vehicle_model.p.y;
-		rads = vehicle_model.az;
+		int16_t disp_vehx = (int16_t)abs(round(MAX_X+1-vehicle_model.p.x));
+		int16_t disp_vehy = (int16_t)abs(round(vehicle_model.p.y));
+
+		//remap model coordinates to LCD coordinates.
+		veh_y = (disp_vehx) % MAX_X;
+		veh_x = (disp_vehy) % MAX_Y;
+
+
 		veh_spd = vect_mag(vehicle_model.v);
 
 		OSSchedLock(&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
-		sprintf(spd_substr, "Speed: %.2f\n", veh_spd);
+		strcpy(spd_substr1, "Speed: ");
+		gcvt(veh_spd, 5, spd_substr);
+		strcpy(dir_substr1, "Turn: ");
+		gcvt(capsense_turn_value, 3, dir_substr);
+
+		strcat(spd_substr1, spd_substr);
+		strcat(dir_substr1, dir_substr);
+//		sprintf(spd_substr, "Speed: %f \n", veh_spd);
 		switch(vehicle_dir.dir) {
 			case DIR_FAR_LEFT:
 				strcpy(dir_substr, "Hard Left ");
-				degree = -45.;
 				break;
 			case DIR_LEFT:
 				strcpy(dir_substr, "Left      ");
-				degree = -15.;
 				break;
 			case DIR_RIGHT:
 				strcpy(dir_substr, "Right     ");
-				degree = 15.;
 				break;
 			case DIR_FAR_RIGHT:
 				strcpy(dir_substr, "Hard Right");
-				degree = 45.;
 				break;
 			case DIR_STRAIGHT:
 			default:
-				degree = 0.;
 				strcpy(dir_substr, "Straight  ");
 				break;
 		} // end switch
 
 		GLIB_clear(&glibContext);
-		GLIB_drawString(&glibContext, spd_substr, strlen(spd_substr), 5, 5, 0);
-//		GLIB_drawString(&glibContext, dir_substr, strlen(dir_substr), 15, 15, 0);
-		GLIB_drawCar(&glibContext, veh_x, veh_y, rads, 0);
+		GLIB_drawString(&glibContext, spd_substr1, 20, 5, 5, 0);
+		GLIB_drawString(&glibContext, dir_substr1, 20, 5, 25, 0);
+		strcpy(spd_substr1, "Radius: ");
+		veh_spd = capsense_turn_value ? 1/capsense_turn_value : 0;
+		gcvt(veh_spd, 3, spd_substr);
+		strcat(spd_substr1, spd_substr);
+		GLIB_drawString(&glibContext, spd_substr1, 20, 5, 105, 0);
+		GLIB_drawCar(&glibContext, veh_x, veh_y, 40*capsense_turn_value, 0);
 //			printf("The current speed is %d mph   \nThe current direction is %s\033H", vehicle_speed.speed, dir_substr);
 		OSSchedUnlock(&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);

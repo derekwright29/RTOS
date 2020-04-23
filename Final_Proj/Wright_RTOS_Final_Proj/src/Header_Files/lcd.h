@@ -59,8 +59,8 @@ static GLIB_Context_t   glibContext;
 #define CAR_CENTER_Y 	MAX_Y - 10
 #define CAR_CENTER_X 	CENTER_X
 #define CAR_RADIUS 		10
-#define DEG2RAD			3.1415826535 / 180.
-#define RAD2DEG			1./DEG2RAD
+#define DEG2RAD			(float)M_PI / 180.
+#define RAD2DEG			(float)180./M_PI
 
 
 #define ARROW_LEN				20

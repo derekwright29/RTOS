@@ -50,12 +50,16 @@ vect_t vect_get_unitvector(float rads) {
 
 
 float vect_get_heading(vect_t vector) {
-	return atan(vector.y / vector.x);
+	return atan((float)vector.y / (float)vector.x);
 }
+
+//float vect_get_heading_lcd(vect_t vector) {
+//	return atan(vector.x / (float)-1*vector.y);
+//}
 
 
 int16_t int_vect_mag(int_vect_t vector){
-	if (vector.x == 0 && vector.y == 0) {
+	if (vector.x == 0. && vector.y == 0.) {
 		return 0;
 	}
 	return (int16_t) sqrt(pow((vector.x),2) + pow(vector.y,2));
@@ -89,6 +93,8 @@ int_vect_t int_vect_plus(int_vect_t vect_a, int_vect_t vect_b) {
 int_vect_t int_vect_mult(int_vect_t vect_a, int16_t scalar) {
 	return (int_vect_t) {vect_a.x * scalar, vect_a.y * scalar};
 }
+
+
 
 
 

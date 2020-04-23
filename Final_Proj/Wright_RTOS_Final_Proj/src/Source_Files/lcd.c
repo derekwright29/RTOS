@@ -64,8 +64,11 @@ void LCDTask(void *p_arg) {
 	char dir_substr[DIR_SUBSTR_MAX_LENGTH], dir_substr1[DIR_SUBSTR_MAX_LENGTH];
 	char spd_substr[SPD_SUBSTR_MAX_LENGTH], spd_substr1[SPD_SUBSTR_MAX_LENGTH];
 	int16_t veh_x, veh_y;
+	int16_t disp_vehx;
+	int16_t disp_vehy;
 	float veh_spd;
-	float arrow_angle = vehicle_model.az * RAD2DEG;
+	float arrow_angle;
+	float lcd_angle_offset = 0;
 	lcd_init();
 	while(1) {
 		OSSemPend(&phys_model_update_sem,
@@ -75,12 +78,14 @@ void LCDTask(void *p_arg) {
 					&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 		// get vehicle position
-		int16_t disp_vehx = (int16_t)abs(round(MAX_X+1-vehicle_model.p.x));
-		int16_t disp_vehy = (int16_t)abs(round(vehicle_model.p.y));
+		veh_x = (((int16_t)round(vehicle_model.p.x)) % MAX_X) + MAX_X; //positive modulus
+		veh_y = (int16_t)abs(round(vehicle_model.p.y));
+
+		arrow_angle = (vehicle_model.az * RAD2DEG) - lcd_angle_offset;
 
 		//remap model coordinates to LCD coordinates.
-		veh_y = (disp_vehx) % MAX_X;
-		veh_x = (disp_vehy) % MAX_Y;
+		disp_vehy = MAX_X - (veh_x % MAX_X);
+		disp_vehx = (veh_y) % MAX_Y;
 
 
 		veh_spd = vect_mag(vehicle_model.v);
@@ -122,7 +127,7 @@ void LCDTask(void *p_arg) {
 		gcvt(veh_spd, 3, spd_substr);
 		strcat(spd_substr1, spd_substr);
 		GLIB_drawString(&glibContext, spd_substr1, 20, 5, 105, 0);
-		GLIB_drawCar(&glibContext, veh_x, veh_y, 40*capsense_turn_value + arrow_angle, 0);
+		GLIB_drawCar(&glibContext, disp_vehx, disp_vehy, 40*capsense_turn_value + arrow_angle, 0);
 //			printf("The current speed is %d mph   \nThe current direction is %s\033H", vehicle_speed.speed, dir_substr);
 		OSSchedUnlock(&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);

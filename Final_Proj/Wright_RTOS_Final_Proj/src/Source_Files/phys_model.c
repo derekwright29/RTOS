@@ -9,6 +9,8 @@ vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_app
 	bool turning = false;
 	float last_az = 0;
 
+	int8_t accel = power_applied > 0 ? 1 : (power_applied == 0 ? 0 : -1);
+
 
 	OSSchedLock(&err);
     vehicle_warning_t warning = 0;
@@ -18,9 +20,9 @@ vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_app
     float radius = p_model->vehicle->TurnRadius / abs(turn);
     float v_mag = vect_mag(p_model->v);
     vect_orth_ref_angle_t turn_dir = turn < 0 ? LEFT_NINETY : RIGHT_NINETY;
-    vect_t af = vect_mult(vect_parallel(vect_get_unitvector(p_model->az), power_applied*p_model->vehicle->PowerDelta / p_model->vehicle->Mass),PHYS_MODEL_TIME_STEP) ; //- friction* G*v_mag);
+    vect_t af = vect_parallel(vect_get_unitvector(p_model->az), accel*p_model->vehicle->PowerDelta / p_model->vehicle->Mass); //- friction* G*v_mag);
     if (turn == 0) {
-    	v_inc = af;
+    	v_inc = vect_mult(af,PHYS_MODEL_TIME_STEP);
     }
 
     else {
@@ -67,8 +69,9 @@ vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_app
     	p_model->v = vect_parallel(p_model->v, p_model->vehicle->MaxSpeed);
 
     //az is inherently encoded in velocity vector, so just grab it from there.
-    if (vect_mag(p_model->v) > 0.001)
-    	p_model->az = vect_get_heading(p_model->v);
+    if (vect_mag(p_model->v) > 0.001) {
+    	p_model->az = determine_az(p_model);
+    }
     else if (vect_mag(p_model->v) < 0.001 && v_mag > 0.001) // is velocity was useful, store which direction we were pointing.
     	last_az = p_model->az;
     else
@@ -121,14 +124,20 @@ void PhysicsModelTask(void* p_arg) {
 	while(1) {
 		pow_cnt = 0;
 		// get button info
-		while(!InputFifo_isEmpty((InputFifo_t *)&FIFO_Button0)){
-			InputFifo_Get((InputFifo_t *)&FIFO_Button0, &ret);
-			pow_cnt++;
-		}
-		while(!InputFifo_isEmpty((InputFifo_t *)&FIFO_Button1)) {
-			InputFifo_Get((InputFifo_t *)&FIFO_Button1, &ret);
-			pow_cnt--;
-		}
+//		while(!InputFifo_isEmpty((InputFifo_t *)&FIFO_Button0)){
+//			InputFifo_Get((InputFifo_t *)&FIFO_Button0, &ret);
+//			pow_cnt++;
+//		}
+//		while(!InputFifo_isEmpty((InputFifo_t *)&FIFO_Button1)) {
+//			InputFifo_Get((InputFifo_t *)&FIFO_Button1, &ret);
+//			pow_cnt--;
+//		}
+		pow_cnt += button0_isPressed();
+		pow_cnt -= button1_isPressed();
+//		if (vect_mag(vehicle_model.v)
+//			pow_cnt = 0; //don't allow reverse yet.
+
+
 			//get mutex
 			//release mutex
 		//get capsense info
@@ -186,5 +195,12 @@ vehicle_warning_t check_slip(float slip_f, float friction_f) {
 	return ((slip_f > friction_f) ? SLIP_ERROR: NO_ERROR);
 }
 
+float determine_az(phys_model_t *p_model) {
+	if (p_model->v.x > 0)
+		return vect_get_heading(p_model->v); // quadrants I and II
+	else {
+		return M_PI + vect_get_heading(p_model->v); // quadrants III and IV
+	}
+}
 
 

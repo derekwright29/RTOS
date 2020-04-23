@@ -100,6 +100,11 @@ uint8_t sample_button(uint8_t button_pin);
 #define sample_button1(...)		sample_button(BSP_GPIO_PB1_PIN)
 
 
+uint8_t button_isPressed(uint8_t button_pin);
+#define button0_isPressed(...)		button_isPressed(BSP_GPIO_PB0_PIN)
+#define button1_isPressed(...)		button_isPressed(BSP_GPIO_PB1_PIN)
+
+
 /**
  * button_isNeither()
  * ___________________

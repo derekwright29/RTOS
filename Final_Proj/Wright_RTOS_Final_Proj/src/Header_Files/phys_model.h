@@ -40,13 +40,13 @@ typedef enum tire_type {
 
 
 #define PHYSICS_MODEL_STRUCT_DEFAULT  {(vect_t){0,0},(vect_t){0,0},(vect_t){0,0},(vect_t){64,64},\
-											(float)-M_PI_2, (float)0.0, (float)0.0,\
+											(float)0.0, (float)0.0, (float)0.0,\
 											NULL, ASPHALT}		// veh_desc, road_cond
 
 #define VEHICLE_DESC_STRUCT_DEFAULT {"Clunker",\
 										10,\
 										1000,\
-										20000,\
+										800,\
 										10,\
 										170,\
 										616,\
@@ -203,5 +203,7 @@ vehicle_warning_t check_slip(float, float);
 
 
 float decideTurn(bool * state_array);
+
+float determine_az(phys_model_t *p_model);
 
 #endif /* __PHYS_MODEL_H */

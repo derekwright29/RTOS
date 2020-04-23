@@ -82,6 +82,10 @@ uint8_t sample_button(uint8_t button_pin) {
 	return GPIO_PinInGet(BSP_GPIO_PB0_PORT, button_pin);
 }
 
+uint8_t button_isPressed(uint8_t button_pin) {
+	return (uint8_t)((sample_button(button_pin) == 0) ? 1 : 0);
+}
+
 uint8_t button_isNeither(uint8_t butt0, uint8_t butt1) {
 	return !(butt0 ^ butt1);
 }

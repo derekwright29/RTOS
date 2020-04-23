@@ -51,9 +51,18 @@
 #define LAB2_USE_INTERRUPTS		1
 
 
+
+/**
+ * Coonfiguration defines
+ * */
+
 /**
  * Globals that multiple files might need
  */
+
+
+
+
 
 
 #endif /* LAB7_H_ */

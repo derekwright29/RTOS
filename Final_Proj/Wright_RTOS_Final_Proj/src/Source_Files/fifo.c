@@ -1,3 +1,6 @@
+#ifndef __FIFO_H__
+#define __FIFO_H__
+
 /*******************************************************************************
  * @file
  * @brief FIFO implementation
@@ -46,9 +49,6 @@ void InputFifo_Put(InputFifo_t *p_Fifo, InputValue_t value)
 		// bump head if we are full
 		p_Fifo->head = (p_Fifo->tail % FIFO_DEPTH);
 	}
-    // printf("In Put: value of head is %d\n", p_Fifo->head);
-    // printf("In Put: value of tail is %d\n", p_Fifo->tail);
-    // printf("In Put: value of num_items is %d\n", p_Fifo->num_items);
 	return;
 }
 
@@ -67,6 +67,24 @@ bool InputFifo_Get(InputFifo_t *p_Fifo, InputValue_t *p_value)
 	*p_value = p_Fifo->input[p_Fifo->head++];
 	p_Fifo->num_items--;
     p_Fifo->head %= FIFO_DEPTH;
+	return true;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Get the next value from the FIFO without changing the state of the FIFO
+ *
+ * @return
+ *   Next value in the FIFO is stored in p_value
+ * 	 bool returns true if successful, false else.
+ ******************************************************************************/
+bool InputFifo_Peek(InputFifo_t *p_Fifo, FifoIndex_t index, InputValue_t *p_value)
+{
+	if (!p_Fifo || !p_value || InputFifo_isEmpty(p_Fifo))
+		return false;
+	if (index >= p_Fifo->head + p_Fifo->num_items)
+		return false;
+	*p_value = p_Fifo->input[p_Fifo->head + index];
 	return true;
 }
 
@@ -94,7 +112,7 @@ bool InputFifo_isEmpty(InputFifo_t *p_Fifo)
  *   boolean: 0 if FIFO is NULL/empty
  *   		  num_items else
  ******************************************************************************/
-uint8_t InputFifo_getNumItems(InputFIfo_t * p_Fifo) {
+uint8_t InputFifo_getNumItems(InputFifo_t * p_Fifo) {
 	if (!p_Fifo)
 		return 0;
 	return p_Fifo->num_items;
@@ -116,7 +134,8 @@ uint8_t InputFifo_getNumItems(InputFIfo_t * p_Fifo) {
  * ***************************************************************************
  * 
  * 
- * /***************************************************************************//**
+ * ****************************************************************************/
+/*
  * @brief
  *   Add a value to the FIFO
  *
@@ -140,9 +159,6 @@ void InputFifo2_Put(InputFifo2_t *p_Fifo, InputValue2_t value)
 		// bump head if we are full
 		p_Fifo->head = (p_Fifo->tail % FIFO_DEPTH);
 	}
-    // printf("In Put: value of head is %d\n", p_Fifo->head);
-    // printf("In Put: value of tail is %d\n", p_Fifo->tail);
-    // printf("In Put: value of num_items is %d\n", p_Fifo->num_items);
 	return;
 }
 
@@ -151,7 +167,8 @@ void InputFifo2_Put(InputFifo2_t *p_Fifo, InputValue2_t value)
  *   Get the next value from the FIFO
  *
  * @return
- *   Next value in the FIFO
+ *   Next value in the FIFO is stored in p_value
+ * 	 bool returns true if successful, false else.
  ******************************************************************************/
 bool InputFifo2_Get(InputFifo2_t *p_Fifo, InputValue2_t *p_value)
 {
@@ -161,6 +178,24 @@ bool InputFifo2_Get(InputFifo2_t *p_Fifo, InputValue2_t *p_value)
 	*p_value = p_Fifo->input[p_Fifo->head++];
 	p_Fifo->num_items--;
     p_Fifo->head %= FIFO_DEPTH;
+	return true;
+}
+
+/***************************************************************************//**
+ * @brief
+ *   Get the next value from the FIFO without changing the state of the FIFO
+ *
+ * @return
+ *   Next value in the FIFO is stored in p_value
+ * 	 bool returns true if successful, false else.
+ ******************************************************************************/
+bool InputFifo2_Peek(InputFifo2_t *p_Fifo, FifoIndex2_t index, InputValue2_t *p_value)
+{
+	if (!p_Fifo || !p_value || InputFifo2_isEmpty(p_Fifo))
+		return false;
+	if (index >= p_Fifo->head + p_Fifo->num_items)
+		return false;
+	*p_value = p_Fifo->input[p_Fifo->head + index];
 	return true;
 }
 
@@ -188,9 +223,10 @@ bool InputFifo2_isEmpty(InputFifo2_t *p_Fifo)
  *   boolean: 0 if FIFO is NULL/empty
  *   		  num_items else
  ******************************************************************************/
-uint8_t InputFifo2_getNumItems(InputFIfo2_t * p_Fifo) {
+uint8_t InputFifo2_getNumItems(InputFifo2_t * p_Fifo) {
 	if (!p_Fifo)
 		return 0;
 	return p_Fifo->num_items;
 }
 
+#endif

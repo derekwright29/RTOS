@@ -233,9 +233,9 @@ static  void  MainStartTask (void  *p_arg)
 	create_vehicle_semaphores();
 	create_vehicle_mutexes();
 
-	// create_menu_task();
-	create_roadgen_task();
-	create_lcd_task();
+	 create_menu_task();
+//	create_roadgen_task();
+//	create_lcd_task();
 	create_idle_task();
 
 }

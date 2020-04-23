@@ -34,7 +34,7 @@ typedef enum tire_type {
 /* Physics/ Vehicle Description
  * *************************************************************************************/
 
-#define PHYS_MODEL_TIME_STEP       0.01 //seconds
+#define PHYS_MODEL_TIME_STEP       0.1 //seconds
 
 #define G               9.8  //m/s^2
 

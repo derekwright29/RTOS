@@ -35,6 +35,8 @@ OS_TCB   LcdTaskTCB;
 #define DIR_SUBSTR_MAX_LENGTH			11
 #define SPD_SUBSTR_MAX_LENGTH			40
 
+#define LCD_NUM_GATES_TO_DRAW       10
+
 
 /********************************
  * GLIB defines *
@@ -68,6 +70,8 @@ static GLIB_Context_t   glibContext;
 
 #define TIP_RADIUS				sqrt(pow((double)ARROW_TIP_LEN,2.) + pow((double)ARROW_LEN-ARROW_TIP_LEN, 2.))
 #define TIP_RADIAN_OFFSET		atan((double)ARROW_TIP_LEN/(double)(ARROW_LEN-ARROW_TIP_LEN))
+
+
 
 
 /************************
@@ -117,6 +121,19 @@ void LCDTask(void * p_arg);
  *
  */
 void lcd_init(void);
+
+
+/**
+ * LCD_draw_gates()
+ * ----------------
+ * @description Draws NUM_GATES_TO_DRAW course gates based on WayPointBuffer
+ *
+ * @param	None
+ *
+ * @return	None
+ *
+ */
+void LCD_draw_gates(void );
 
 
 

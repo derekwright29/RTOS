@@ -4,6 +4,8 @@
 #include  <kernel/include/os.h>
 #include <common/include/rtos_utils.h>
 #include "my_vect.h"
+#include "vehicle.h"
+#include "fifo.h"
 
 // TODO: move to road_gen.h/c
 typedef struct RoadLayout		// Purple items are only relevant for specific 3-D enhancements.
@@ -11,7 +13,7 @@ typedef struct RoadLayout		// Purple items are only relevant for specific 3-D en
 	char Name[16];			// null terminated
 	uint16_t RoadWidth;			// cm
 	uint16_t NumWaypoints;		//
-	int_vect_t* Waypoints;				// Array of waypoints.  First and last 2 are not to be driven
+	const int_vect_t* Waypoints;				// Array of waypoints.  First and last 2 are not to be driven
 }road_description_t;
 
 typedef enum road_conditions {
@@ -31,25 +33,25 @@ extern road_condition_t road_cond;
 /*
  * Course definitions
  * */
-#define SPARSE_R_WAYPOINTS 		 { (int_vect_t){15,0},		(int_vect_t){0,0},		(int_vect_t){10,0},		(int_vect_t){20,0},		(int_vect_t){50,10},\
-									(int_vect_t){80,5},		(int_vect_t){130,20}, 	(int_vect_t){135,110},	(int_vect_t){135,190},	(int_vect_t){170,225},\
-									(int_vect_t){205,210},	(int_vect_t){205,190},	(int_vect_t){150,100},	(int_vect_t){165,50},	(int_vect_t){200,40},\
-									(int_vect_t){210,38},	(int_vect_t){230,39}    }
+#define SPARSE_R_WAYPOINTS 		 { (int_vect_t){20,120},		(int_vect_t){20,110},		(int_vect_t){20,100},		(int_vect_t){20,80},		(int_vect_t){20,60},\
+									(int_vect_t){30,30},		(int_vect_t){50,20}, 	(int_vect_t){64,25},	(int_vect_t){80,40},	(int_vect_t){85,60},\
+									(int_vect_t){80,75},	(int_vect_t){70,85},	(int_vect_t){60,90},	(int_vect_t){55,100},	(int_vect_t){80,105},\
+									(int_vect_t){105,110},	(int_vect_t){115,120}    }
 
 #define DENSE_R_WAYPOINTS		{(int_vect_t) {10,10}}
 
 extern const int_vect_t Sparse_R[20];
-extern const int_vect_t DenseR[100];
+extern const int_vect_t Dense_R[100];
 
-#define ROAD_DESC_SPARSE_R_DEFAULT		(road_description_t){"Sparse R", 20, 17, SparseR}
+#define ROAD_DESC_SPARSE_R_DEFAULT		(road_description_t){"Sparse R", 20, 17, Sparse_R}
 #define ROAD_CONDITION_DEFAULT			(road_condition_t) ASPHALT
 
 // Req to stay 5 waypoints ahead
-extern int_vect_t WayPointBuffer[5];
-ROAD_GEN_WP_BUFFER_SIZE			10
+extern InputFifo2_t WayPointBuffer;
+#define ROAD_GEN_WP_BUFFER_SIZE			10
 
 
-#define ROADGEN_TASK_PRIO					27u
+#define ROADGEN_TASK_PRIO					29u
 #define ROADGEN_TASK_STK_SIZE				1024u
 CPU_STK  RoadGenTaskStk[ROADGEN_TASK_STK_SIZE];
 OS_TCB   RoadGenTaskTCB;

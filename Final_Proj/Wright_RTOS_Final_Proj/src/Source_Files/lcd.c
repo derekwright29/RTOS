@@ -12,6 +12,8 @@
 #include "display.h"
 #include "dmd.h"
 #include <common/include/rtos_utils.h>
+#include "road_gen.h"
+#include "fifo.h"
 
 static EMSTATUS GLIB_drawCar(GLIB_Context_t *pContext, int16_t veh_x, int16_t veh_y, double degrees, bool clear_flag) {
 	EMSTATUS status = GLIB_OK;
@@ -120,15 +122,17 @@ void LCDTask(void *p_arg) {
 		} // end switch
 
 		GLIB_clear(&glibContext);
-		GLIB_drawString(&glibContext, spd_substr1, 20, 5, 5, 0);
-		GLIB_drawString(&glibContext, dir_substr1, 20, 5, 25, 0);
+		LCD_draw_gates();
+		// GLIB_drawString(&glibContext, spd_substr1, 20, 5, 5, 0);
+		// GLIB_drawString(&glibContext, dir_substr1, 20, 5, 25, 0);
 		strcpy(spd_substr1, "Radius: ");
 		veh_spd = capsense_turn_value ? 1/capsense_turn_value : 0;
 		gcvt(veh_spd, 3, spd_substr);
 		strcat(spd_substr1, spd_substr);
-		GLIB_drawString(&glibContext, spd_substr1, 20, 5, 105, 0);
+		// GLIB_drawString(&glibContext, spd_substr1, 20, 5, 105, 0);
 		GLIB_drawCar(&glibContext, disp_vehx, disp_vehy, -20*capsense_turn_value + arrow_angle, 0);
 //			printf("The current speed is %d mph   \nThe current direction is %s\033H", vehicle_speed.speed, dir_substr);
+
 		OSSchedUnlock(&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 		/* Updated display */
@@ -167,5 +171,18 @@ void lcd_init() {
 //	if (RETARGET_TextDisplayInit() != TEXTDISPLAY_EMSTATUS_OK) {
 //	while (1) ;
 //	}
+
+}
+
+
+void LCD_draw_gates() {
+	int_vect_t curr_wp;
+	uint8_t wp_cnt = 0;
+	while (wp_cnt < LCD_NUM_GATES_TO_DRAW) {
+		InputFifo2_Peek(&WayPointBuffer, wp_cnt, (InputValue2_t *)&curr_wp);
+		GLIB_drawCircleFilled(&glibContext, curr_wp.x, curr_wp.y, 2);
+		wp_cnt++;
+	}
+
 
 }

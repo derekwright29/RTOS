@@ -36,7 +36,7 @@ typedef enum tire_type {
 
 #define G               9.8  //m/s^2
 
-#define DEFAULT_MU       .1
+#define DEFAULT_MU       5
 
 
 #define PHYSICS_MODEL_STRUCT_DEFAULT  {(vect_t){0,0},(vect_t){0,0},(vect_t){0,0},(vect_t){64,64},\

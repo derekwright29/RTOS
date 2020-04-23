@@ -138,7 +138,7 @@ void PhysicsModelTask(void* p_arg) {
 
 		//update phys model
 		//get mustex on p_model
-//		phys_model_take_step(&vehicle_model, pow_cnt, capsense_turn_value);
+		phys_model_take_step(&vehicle_model, pow_cnt, capsense_turn_value);
 		//send Flag to LCD AND Monitor Task to update ------> if Monitor detects error or  we got to the waypoint, send flag to Menu/LCD for game over and roadgen to get new waypoint and add to 5-deep ready queue.
 		OSSemPost(&phys_model_update_sem, OS_OPT_POST_ALL, &err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);

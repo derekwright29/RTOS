@@ -65,6 +65,7 @@ void LCDTask(void *p_arg) {
 	char spd_substr[SPD_SUBSTR_MAX_LENGTH], spd_substr1[SPD_SUBSTR_MAX_LENGTH];
 	int16_t veh_x, veh_y;
 	float veh_spd;
+	float arrow_angle = vehicle_model.az * RAD2DEG;
 	lcd_init();
 	while(1) {
 		OSSemPend(&phys_model_update_sem,
@@ -121,7 +122,7 @@ void LCDTask(void *p_arg) {
 		gcvt(veh_spd, 3, spd_substr);
 		strcat(spd_substr1, spd_substr);
 		GLIB_drawString(&glibContext, spd_substr1, 20, 5, 105, 0);
-		GLIB_drawCar(&glibContext, veh_x, veh_y, 40*capsense_turn_value, 0);
+		GLIB_drawCar(&glibContext, veh_x, veh_y, 40*capsense_turn_value + arrow_angle, 0);
 //			printf("The current speed is %d mph   \nThe current direction is %s\033H", vehicle_speed.speed, dir_substr);
 		OSSchedUnlock(&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);

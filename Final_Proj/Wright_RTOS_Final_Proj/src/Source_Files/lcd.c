@@ -79,7 +79,7 @@ void LCDTask(void *p_arg) {
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 		// get vehicle position
 		veh_x = (((int16_t)round(vehicle_model.p.x)) % MAX_X) + MAX_X; //positive modulus
-		veh_y = (int16_t)abs(round(vehicle_model.p.y));
+		veh_y = (int16_t)fabs(round(vehicle_model.p.y));
 
 		arrow_angle = (vehicle_model.az * RAD2DEG) - lcd_angle_offset;
 
@@ -127,7 +127,7 @@ void LCDTask(void *p_arg) {
 		gcvt(veh_spd, 3, spd_substr);
 		strcat(spd_substr1, spd_substr);
 		GLIB_drawString(&glibContext, spd_substr1, 20, 5, 105, 0);
-		GLIB_drawCar(&glibContext, disp_vehx, disp_vehy, 40*capsense_turn_value + arrow_angle, 0);
+		GLIB_drawCar(&glibContext, disp_vehx, disp_vehy, -20*capsense_turn_value + arrow_angle, 0);
 //			printf("The current speed is %d mph   \nThe current direction is %s\033H", vehicle_speed.speed, dir_substr);
 		OSSchedUnlock(&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);

@@ -17,7 +17,7 @@ vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_app
     vect_t ac; //centripetal accel
     vect_t v_inc; // a*dt
     vect_t p_inc; // v*dt
-    float radius = p_model->vehicle->TurnRadius / abs(turn);
+    float radius = (float)(p_model->vehicle->TurnRadius) / fabs(turn);
     float v_mag = vect_mag(p_model->v);
     vect_orth_ref_angle_t turn_dir = turn < 0 ? LEFT_NINETY : RIGHT_NINETY;
     vect_t af = vect_parallel(vect_get_unitvector(p_model->az), accel*p_model->vehicle->PowerDelta / p_model->vehicle->Mass); //- friction* G*v_mag);
@@ -169,13 +169,13 @@ float decideTurn(bool * state_array) {
 		state_array[i] = capsenseIsPressed[i];
 	}
 	if (state_array[0] && !state_array[1] && !state_array[2] && !state_array[3])
-		return -1.0;
-	else if (((uint8_t)state_array[0]+(uint8_t)state_array[1]) > ((uint8_t)state_array[2]+(uint8_t)state_array[3]))
-		return -0.5;
-	else if (!state_array[0] && !state_array[1] && !state_array[2] && state_array[3])
 		return 1.0;
-	else if (((uint8_t)state_array[0]+(uint8_t)state_array[1]) < ((uint8_t)state_array[2]+(uint8_t)state_array[3]))
+	else if (((uint8_t)state_array[0]+(uint8_t)state_array[1]) > ((uint8_t)state_array[2]+(uint8_t)state_array[3]))
 		return 0.5;
+	else if (!state_array[0] && !state_array[1] && !state_array[2] && state_array[3])
+		return -1.0;
+	else if (((uint8_t)state_array[0]+(uint8_t)state_array[1]) < ((uint8_t)state_array[2]+(uint8_t)state_array[3]))
+		return -0.5;
 	else
 		return 0.0;
 }

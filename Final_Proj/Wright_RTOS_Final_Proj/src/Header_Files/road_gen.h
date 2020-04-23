@@ -1,10 +1,32 @@
 #ifndef __ROAD_GEN_H
 #define __ROAD_GEN_H
 
-#include "final_proj.h"
+#include  <kernel/include/os.h>
+#include <common/include/rtos_utils.h>
 #include "my_vect.h"
 
-road_description_t course;
+// TODO: move to road_gen.h/c
+typedef struct RoadLayout		// Purple items are only relevant for specific 3-D enhancements.
+{
+	char Name[16];			// null terminated
+	uint16_t RoadWidth;			// cm
+	uint16_t NumWaypoints;		//
+	int_vect_t* Waypoints;				// Array of waypoints.  First and last 2 are not to be driven
+}road_description_t;
+
+typedef enum road_conditions {
+    ASPHALT = 1,
+    EARTH = 2,
+    GRAVEL = 3,
+    SAND = 4,
+    ICE = 5
+}road_condition_t;
+
+
+extern road_description_t course;
+extern road_condition_t road_cond;
+
+
 
 /*
  * Course definitions
@@ -16,8 +38,34 @@ road_description_t course;
 
 #define DENSE_R_WAYPOINTS		{(int_vect_t) {10,10}}
 
-const int_vect_t Sparse_R[100] = SPARSE_R_WAYPOINTS;
-const int_vect_t DenseR[100] = DENSE_R_WAYPOINTS;
+extern const int_vect_t Sparse_R[20];
+extern const int_vect_t DenseR[100];
+
+#define ROAD_DESC_SPARSE_R_DEFAULT		(road_description_t){"Sparse R", 20, 17, SparseR}
+#define ROAD_CONDITION_DEFAULT			(road_condition_t) ASPHALT
+
+// Req to stay 5 waypoints ahead
+extern int_vect_t WayPointBuffer[5];
+ROAD_GEN_WP_BUFFER_SIZE			10
+
+
+#define ROADGEN_TASK_PRIO					27u
+#define ROADGEN_TASK_STK_SIZE				1024u
+CPU_STK  RoadGenTaskStk[ROADGEN_TASK_STK_SIZE];
+OS_TCB   RoadGenTaskTCB;
+
+OS_SEM new_waypoint_sem;
+
+
+void create_roadgen_task(void);
+
+void roadgen_init(void );
+
+void create_roadgen_sems(void );
+
+void RoadGenTask(void *p_arg);
+
+
 
 
 

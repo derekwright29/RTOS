@@ -21,11 +21,15 @@ vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_app
     float v_mag = vect_mag(p_model->v);
     vect_orth_ref_angle_t turn_dir = turn < 0 ? LEFT_NINETY : RIGHT_NINETY;
     vect_t af;
-    if ((v_mag < 0.001) && power_applied = 0) {
+    if ((v_mag < 0.001) && (power_applied == 0)) {
     	af = (vect_t) {0,0};
     }
+    else if ((v_mag < 0.5) && (power_applied == 0)) {
+    	//ramp down
+    	af = vect_parallel(p_model->v, v_mag * -0.1);
+    }
     else
-    	af = vect_parallel(vect_get_unitvector(p_model->az), accel*p_model->vehicle->PowerDelta / p_model->vehicle->Mass);// - DEFAULT_MU* G);
+    	af = vect_parallel(vect_get_unitvector(p_model->az), accel*p_model->vehicle->PowerDelta / p_model->vehicle->Mass - DEFAULT_MU* G);
     if (turn == 0) {
     	v_inc = vect_mult(af,PHYS_MODEL_TIME_STEP);
     }
@@ -43,7 +47,8 @@ vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_app
     p_model->v = vect_plus(p_model->v, v_inc);
     p_model->p = vect_plus(p_model->p, p_inc);
 
-    if (turning && !power_applied) {
+    if (turning && !power_applied && (vect_mag(af) > 0)) {
+
     	p_model->v = vect_parallel(p_model->v, v_mag);
     }
 

@@ -6,6 +6,8 @@
 #include "my_vect.h"
 #include "mycapsense.h"
 #include "lcd.h"
+#include "road_gen.h"
+#include "final_proj.h"
 
 #ifndef M_PI
     #define M_PI 3.14159265358979323846
@@ -108,26 +110,6 @@ typedef struct vehicle_info_struct
 
 
 
-// TODO: move to road_gen.h/c
-typedef struct RoadLayout		// Purple items are only relevant for specific 3-D enhancements.
-{
-	char Name[16];			// null terminated
-	uint16_t RoadWidth;			// cm
-	uint16_t NumWaypoints;		//
-	struct {
-	int16_t x;			// m
-	int16_t y;			// m
-	}* Waypoints;				// Array of waypoints.  First and last 2 are not to be driven
-}road_description_t;
-
-typedef enum road_conditions {
-    ASPHALT = 1,
-    EARTH = 2,
-    GRAVEL = 3,
-    SAND = 4,
-    ICE = 5
-}road_condition_t;
-
 typedef enum vehicle_warning {
 	NO_ERROR = 0,
     SLIP_ERROR = 1,
@@ -187,7 +169,8 @@ void PhysicsModelTask(void *p_arg);
  * *******************************************************************************************************/
 vehicle_description_t vehicle_desc;
 extern phys_model_t vehicle_model;
-road_condition_t road_cond;
+extern road_condition_t road_cond;
+extern road_description_t course;
 
 
 

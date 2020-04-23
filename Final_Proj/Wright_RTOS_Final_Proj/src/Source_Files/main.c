@@ -57,6 +57,7 @@
 #include "mycapsense.h"
 #include "buttons.h"
 #include "led_driver.h"
+#include "road_gen.h"
 #include "phys_model.h"
 #include "menu.h"
 #include "vehicle.h"
@@ -224,6 +225,7 @@ static  void  MainStartTask (void  *p_arg)
 
     //simulate menu task
     vehicle_desc = (vehicle_description_t) VEHICLE_DESC_STRUCT_DEFAULT;
+    course = ROAD_DESC_SPARSE_R_DEFAULT;
     road_cond = ASPHALT;
 
 	/* Create OS Constructs Necessary for given tasks */
@@ -231,7 +233,9 @@ static  void  MainStartTask (void  *p_arg)
 	create_vehicle_semaphores();
 	create_vehicle_mutexes();
 
-	create_menu_task();
+	// create_menu_task();
+	create_roadgen_task();
+	create_lcd_task();
 	create_idle_task();
 
 }

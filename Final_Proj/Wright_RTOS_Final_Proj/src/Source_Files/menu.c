@@ -56,13 +56,22 @@ void MenuTask(void *p_arg) {
 				isPress = false;
 				switch(screen) {
 					case CHOOSE_CAR:
-//						vehicle_model.vehicle = (const vehicle_description_t*) &(car_choices[selection]);
+						if (selection == 0){
+							vehicle_model.vehicle = &clunker;
+						}
+						else if (selection == 1) {
+							vehicle_model.vehicle = &sportscar;
+						}
+						else {
+							vehicle_model.vehicle = &truck;
+						}
 						break;
 					case CHOOSE_COND:
 						vehicle_model.road = (road_condition_t) selection + 1;
 						break;
 					case CHOOSE_COURSE:
 //						course = (road_condition_t) course_choices[selection];
+//						course_headings =
 						break;
 				}
 				screen++;

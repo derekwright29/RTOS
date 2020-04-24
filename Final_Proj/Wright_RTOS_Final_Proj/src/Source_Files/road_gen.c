@@ -7,7 +7,7 @@
 
 
 const int_vect_t Sparse_R[20] = SPARSE_R_WAYPOINTS;
-const int_vect_t DenseR[100] = DENSE_R_WAYPOINTS;
+const int_vect_t FlyingQ[100] = FLYING_Q_WAYPOINTS;
 
 const float Sparse_R_Headings[20] = SPARSE_R_HEADINGS;
 

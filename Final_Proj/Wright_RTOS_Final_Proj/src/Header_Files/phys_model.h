@@ -17,8 +17,6 @@
 extern float capsense_turn_value;
 
 
-
-
 /**************************************************************************************/
 /* Typedefs
  * *************************************************************************************/
@@ -47,7 +45,7 @@ typedef enum tire_type {
 
 #define VEHICLE_DESC_STRUCT_DEFAULT {"Clunker",\
 										10,\
-										1000,\
+										100,\
 										800,\
 										10,\
 										170,\
@@ -56,29 +54,29 @@ typedef enum tire_type {
 										}
 
 #define VEHICLE_DESC_STRUCT_CLUNKER {"Clunker",\
-										1234,\
-										93,\
 										10,\
-										5,\
+										100,\
+										800,\
+										15,\
 										170,\
 										616,\
 										TOURISM\
 										}
 
 #define VEHICLE_DESC_STRUCT_SPORT {"Sport's Car",\
-										834,\
+										8,\
 										180,\
-										20,\
-										3,\
+										1200,\
+										9,\
 										170,\
 										216,\
 										HIGH_PERF\
 										}
 #define VEHICLE_DESC_STRUCT_TRUCK {"Truck",\
-										2234,\
-										250,\
-										20,\
-										9,\
+										30,\
+										120,\
+										1500,\
+										24,\
 										200,\
 										316,\
 										TRUCK\
@@ -176,6 +174,11 @@ vehicle_description_t vehicle_desc;
 extern phys_model_t vehicle_model;
 extern road_condition_t road_cond;
 extern road_description_t course;
+
+extern vehicle_description_t clunker;
+extern vehicle_description_t sportscar;
+extern vehicle_description_t truck;
+
 
 
 

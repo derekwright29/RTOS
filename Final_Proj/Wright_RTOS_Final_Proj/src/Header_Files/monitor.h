@@ -46,7 +46,10 @@ typedef enum FVehicleAlert {
 #define F_ALERT_FLAGS_ALL 	(FALERT_DIRECTION_TIMEOUT | FALERT_SPEED_LIMIT | FALERT_TURN_SPEED_LIMIT | FALERT_NO_ALERT)
 
 
+#define MONITOR_TASK_PERIOD		0.1
+
 #define MONITOR_SLIP_THRESHOLD  1.0
+#define MONITOR_DISTANCE_THRESHOLD		7.0
 
 /*************************
  * LOCAL GLOBAL VARIABLES
@@ -125,6 +128,5 @@ void f_create_monitor_timers(void);
 void LED0TimerCallback(void);
 void LED1TimerCallback(void);
 
-void check_waypoint(void);
 
 #endif /* _MONITOR_H */

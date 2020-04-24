@@ -224,7 +224,7 @@ static  void  MainStartTask (void  *p_arg)
     gpio_open();
 
     //simulate menu task
-    vehicle_desc = (vehicle_description_t) VEHICLE_DESC_STRUCT_DEFAULT;
+//    vehicle_desc = (vehicle_description_t) VEHICLE_DESC_STRUCT_DEFAULT;
     course = ROAD_DESC_SPARSE_R_DEFAULT;
     memcpy(course_headings, Sparse_R_Headings, course.NumWaypoints*sizeof(float));
     road_cond = ASPHALT;

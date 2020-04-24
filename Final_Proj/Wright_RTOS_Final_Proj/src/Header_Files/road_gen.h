@@ -46,7 +46,11 @@ extern float course_headings[MAX_NUM_WAYPOINTS];
 												  3.4633,				3.92699,				4.248741,				3.60524,				1.7681919,\
 												  1.7681919,				2.35619}
 
-#define DENSE_R_WAYPOINTS		{(int_vect_t) {10,10}}
+#define FLYING_Q_WAYPOINTS		{(int_vect_t) {10,10}}
+#define FLYING_Q_HEADINGS
+
+#define SHARP_W_WAYPOINTS
+#define SHARP_W_HEADINGS
 
 extern const int_vect_t Sparse_R[20];
 extern const float Sparse_R_Headings[20];

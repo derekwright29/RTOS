@@ -1,6 +1,13 @@
 #include <phys_model.h>
 
+
+
 phys_model_t vehicle_model = PHYSICS_MODEL_STRUCT_DEFAULT;
+
+
+vehicle_description_t clunker = VEHICLE_DESC_STRUCT_CLUNKER;
+vehicle_description_t sportscar = VEHICLE_DESC_STRUCT_SPORT;
+vehicle_description_t truck = VEHICLE_DESC_STRUCT_TRUCK;
 
 //power applied is the value controlled by the buttons
 //turn is the value controlled by the capsense. Should be between -1 and 1
@@ -103,7 +110,7 @@ void create_physics_model_task() {
 	RTOS_ERR err;
 	//vehicle_desc, road_cond is init'ed in Menu task
 	//once we are here we can set the model
-	vehicle_model.vehicle = &vehicle_desc;
+//	vehicle_model.vehicle = &vehicle_desc;
 	vehicle_model.road = road_cond;
 
 	OSMutexCreate(&vehicle_state_mutex, "Vehicle State Mutex", &err);

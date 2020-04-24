@@ -99,6 +99,7 @@ void FVehicleMonitorTask(void * p_arg) {
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
         //check slip parameter
+		//TODO: implement
 //		slip = friction - accel_cent;
         //send warning to LED sem if warning
 		if (slip < 0) {
@@ -119,9 +120,11 @@ void FVehicleMonitorTask(void * p_arg) {
 			led0_blinking = true;
 		}
 		else {
+			if (led0_blinking) {
+				OSTmrStop(&LED0_timer, OS_OPT_TMR_NONE, 0,&err);
+				APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+			}
 			led0_blinking = false;
-			OSTmrStop(&LED0_timer, OS_OPT_TMR_NONE, 0,&err);
-			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 			GPIO_PinOutClear(LED0_port, LED0_pin);
 		}
 
@@ -136,7 +139,7 @@ void FVehicleMonitorTask(void * p_arg) {
 					&err);
 			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 		}
-		check_waypoint();
+
 		gate_heading = course_headings[waypoint_index-ROAD_GEN_WP_BUFFER_SIZE];
 		if (gate_heading < M_PI_2 && gate_heading >= 0.) {
 			//quadrant 1
@@ -222,18 +225,31 @@ void FVehicleMonitorTask(void * p_arg) {
 			}
 		}
 
+		float distance = fabs(cos(gate_heading)*(active_wp.x - vehicle_model.p.x) + sin(gate_heading)*(vehicle_model.p.y - active_wp.y));
+		if (distance > MONITOR_DISTANCE_THRESHOLD) {
+			//start LED blink
+			if (!led1_blinking) {
+				OSTmrStart(&LED1_timer, &err);
+				APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+			}
+			led1_blinking = true;
+		}
+		else {
+			if(led1_blinking) {
+				OSTmrStop(&LED1_timer, OS_OPT_TMR_NONE, 0, &err);
+				APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+			}
+			led1_blinking = false;
 
-        //send warning to LED sem if warning
-        //send game_over sem if game over.
-		//send new_waypoint sem to Road_gen if success
-		//if last waypoint, send game_over to Menu, success
+			GPIO_PinOutClear(LED1_port, LED1_pin);
+		}
 
 		//check speed against max speed, update
 		if (vect_mag(vehicle_model.v) > stats.max_speed) {
 			stats.max_speed = vect_mag(vehicle_model.v);
 		}
 		//TODO: check timing
-		stats.time_on_course += .1;
+		stats.time_on_course += MONITOR_TASK_PERIOD;
 
 		//
 
@@ -267,6 +283,3 @@ void LED1TimerCallback(void) {
 	GPIO_PinOutToggle(LED1_port, LED1_pin);
 }
 
-void check_waypoint(void) {
-
-}

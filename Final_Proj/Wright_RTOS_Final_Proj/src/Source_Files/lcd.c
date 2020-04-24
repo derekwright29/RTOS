@@ -60,6 +60,15 @@ void create_lcd_task() {
 
 }
 
+void delete_lcd_task() {
+	RTOS_ERR err;
+
+	OSTaskDel(&LcdTaskTCB, &err);
+	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+
+
+}
+
 
 void LCDTask(void *p_arg) {
 	RTOS_ERR err;

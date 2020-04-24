@@ -90,7 +90,7 @@ void create_roadgen_task() {
 void delete_roadgen_task() {
 	RTOS_ERR err;
 
-	OSSemDel(&new_waypoint_sem, OS_OPT_DEL_NO_PEND, &err);
+	OSSemDel(&new_waypoint_sem, OS_OPT_DEL_ALWAYS, &err);
 	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
 	OSTaskDel(&RoadGenTaskTCB, &err);
@@ -109,7 +109,7 @@ void roadgen_init(void ) {
 		InputFifo2_Put(&WayPointBuffer, course.Waypoints[fill_index++]);
 	}
 //	OSTmrStart(&road_gen_test_timer, &err);
-	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+//	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 }
 
 void create_roadgen_sems(void ) {

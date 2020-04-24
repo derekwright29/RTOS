@@ -1,13 +1,13 @@
 
 
 #include "monitor.h"
+#include <math.h>
 
 
 
 
 
 stats_t stats;
-
 
 void f_create_vehicle_monitor_task() {
 	RTOS_ERR err;
@@ -78,6 +78,7 @@ void f_monitor_task_init() {
 				 &err);
     APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
     f_create_monitor_task_timer();
+    f_create_monitor_timers();
 
 	return;
 }
@@ -88,7 +89,10 @@ void FVehicleMonitorTask(void * p_arg) {
 	RTOS_ERR err;
 	int_vect_t active_wp;
 	bool ret;
-	float slip, friction, accel_cent;
+	bool course_active = false;
+	bool led1_blinking = false;
+	bool led0_blinking = false;
+	float slip=.1, friction, accel_cent, gate_heading;
 	while(1) {
 
 		OSSemPend(&monitor_wakeup_sem, 0,OS_OPT_PEND_BLOCKING,0,&err);
@@ -107,7 +111,15 @@ void FVehicleMonitorTask(void * p_arg) {
 		}
 		else if (slip < MONITOR_SLIP_THRESHOLD) {
 			//start LED toggling
-			OSTmrStart(&LED0_timer, &err);
+			if(!led0_blinking) {
+				OSTmrStart(&LED0_timer, &err);
+				APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+			}
+			led0_blinking = true;
+		}
+		else {
+			led0_blinking = false;
+			OSTmrStop(&LED0_timer, &err);
 			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 		}
 
@@ -121,6 +133,86 @@ void FVehicleMonitorTask(void * p_arg) {
 					OS_OPT_POST_FLAG_SET,
 					&err);
 			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+		}
+		check_waypoint();
+		gate_heading = course_headings[waypoint_index-ROAD_GEN_WP_BUFFER_SIZE];
+		if (gate_heading < M_PI_2 && gate_heading >= 0.) {
+			//quadrant 1
+			if (vehicle_model.p.y < (tan(gate_heading)*(vehicle_model.p.x - active_wp.x) + active_wp.y)) {
+				// means y has crossed gate, now check x
+				if((vehicle_model.p.x > (active_wp.x - cos(gate_heading)*course.RoadWidth/2)) && (vehicle_model.p.x < (active_wp.x + cos(gate_heading)*course.RoadWidth/2))){
+					if(!course_active)
+						course_active = true;
+					// within bounds of gate. success, post to road_gen
+					OSSemPost(&new_waypoint_sem, OS_OPT_POST_ALL, &err);
+					APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+				}
+				else {
+					if (course_active) {
+						OSFlagPost(&game_over_flag, FAIL_OFFROAD, OS_OPT_POST_FLAG_SET, &err);
+						APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+					}
+				}
+			}
+
+		}
+		else if (gate_heading >= M_PI_2 && gate_heading < M_PI) {
+			//quadrant 2
+			if (vehicle_model.p.x > ((cos(gate_heading)*(vehicle_model.p.x - active_wp.y)/sin(gate_heading))+active_wp.x)) {
+				// we are "right of gate", check if y is in bounds
+				if ((vehicle_model.p.y > (active_wp.y - sin(gate_heading)*course.RoadWidth/2)) && (vehicle_model.p.y < (active_wp.y + sin(gate_heading)*course.RoadWidth/2))) {
+					if(!course_active)
+						course_active = true;
+					// within bounds of gate. success, post to road_gen
+					OSSemPost(&new_waypoint_sem, OS_OPT_POST_ALL, &err);
+					APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+				}
+				else {
+					if(course_active) {
+						OSFlagPost(&game_over_flag, FAIL_OFFROAD, OS_OPT_POST_FLAG_SET, &err);
+						APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+					}
+				}
+			}
+		}
+		if ((gate_heading < (3*M_PI_2)) && (gate_heading >= M_PI)) {
+			//quadrant 3
+			if (vehicle_model.p.y > (tan(gate_heading)*(vehicle_model.p.x - active_wp.x) + active_wp.y)) {
+				// means y has crossed gate, now check x
+				if((vehicle_model.p.x > (active_wp.x - cos(gate_heading)*course.RoadWidth/2)) && (vehicle_model.p.x < (active_wp.x + cos(gate_heading)*course.RoadWidth/2))){
+					if(!course_active)
+						course_active = true;
+					// within bounds of gate. success, post to road_gen
+					OSSemPost(&new_waypoint_sem, OS_OPT_POST_ALL, &err);
+					APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+				}
+				else {
+					if (course_active) {
+						OSFlagPost(&game_over_flag, FAIL_OFFROAD, OS_OPT_POST_FLAG_SET, &err);
+						APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+					}
+				}
+			}
+
+		}
+		else if (gate_heading >= 3*M_PI_2 && gate_heading < M_TWOPI) {
+			//quadrant 2
+			if (vehicle_model.p.x < ((cos(gate_heading)*(vehicle_model.p.x - active_wp.y)/sin(gate_heading))+active_wp.x)) {
+				// we are "right of gate", check if y is in bounds
+				if ((vehicle_model.p.y > (active_wp.y - sin(gate_heading)*course.RoadWidth/2)) && (vehicle_model.p.y < (active_wp.y + sin(gate_heading)*course.RoadWidth/2))) {
+					if(!course_active)
+						course_active = true;
+					// within bounds of gate. success, post to road_gen
+					OSSemPost(&new_waypoint_sem, OS_OPT_POST_ALL, &err);
+					APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+				}
+				else {
+					if(course_active) {
+						OSFlagPost(&game_over_flag, FAIL_OFFROAD, OS_OPT_POST_FLAG_SET, &err);
+						APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+					}
+				}
+			}
 		}
 
 
@@ -153,10 +245,10 @@ void f_create_monitor_timers(void) {
 	RTOS_ERR err;
 
 	OSTmrCreate(&LED0_timer, "Offroad Alert LED Timer", 0,
-				5, OS_OPT_TMR_PERIODIC, LED0TimerCallback, 0, &err);
+				5, OS_OPT_TMR_PERIODIC, (OS_TMR_CALLBACK_PTR)LED0TimerCallback, 0, &err);
 	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
-	OSTmrCreate(&LED0_timer, "Offroad Alert LED Timer", 0,
-					5, OS_OPT_TMR_PERIODIC, LED0TimerCallback, 0, &err);
+	OSTmrCreate(&LED1_timer, "Offroad Alert LED Timer", 0,
+					5, OS_OPT_TMR_PERIODIC, (OS_TMR_CALLBACK_PTR)LED1TimerCallback, 0, &err);
 	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 }
 
@@ -166,4 +258,8 @@ void LED0TimerCallback(void) {
 
 void LED1TimerCallback(void) {
 	GPIO_PinOutToggle(LED1_port, LED1_pin);
+}
+
+void check_waypoint(void) {
+
 }

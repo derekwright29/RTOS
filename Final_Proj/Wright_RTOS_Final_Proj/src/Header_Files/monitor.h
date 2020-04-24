@@ -5,6 +5,10 @@
 #include "menu.h"
 #include <kernel/include/os.h>
 
+#ifndef M_TWOPI
+#define M_TWOPI         (M_PI * 2.0)
+#endif
+
 
 #ifndef TYPES_DEFINED_
 #define TYPES_DEFINED_
@@ -120,5 +124,7 @@ void f_create_monitor_timers(void);
 
 void LED0TimerCallback(void);
 void LED1TimerCallback(void);
+
+void check_waypoint(void);
 
 #endif /* _MONITOR_H */

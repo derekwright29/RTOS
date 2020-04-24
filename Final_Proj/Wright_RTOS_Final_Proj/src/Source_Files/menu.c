@@ -81,7 +81,7 @@ void MenuTask(void *p_arg) {
 		failure_t fail_flag = OSFlagPend(&game_over_flag,
 									ALL_FAIL_FLAGS,
 									0,
-									OS_OPT_PEND_BLOCKING,
+									(OS_OPT_PEND_FLAG_SET_ANY + OS_OPT_PEND_FLAG_CONSUME + OS_OPT_PEND_BLOCKING),
 									(CPU_TS*)0,
 									&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
@@ -335,14 +335,14 @@ void release_menu_control(void) {
 	create_physics_model_task();
 	create_roadgen_task();
 	create_lcd_task();
-	// f_create_vehicle_monitor_task();
+	f_create_vehicle_monitor_task();
 	return;
 }
 
 void take_menu_control(void) {
 	delete_physics_model_task();
 	delete_roadgen_task();
-//	delete_lcd_task();
+	delete_lcd_task();
 	 f_delete_vehicle_monitor_task();
 	return;
 }

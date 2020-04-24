@@ -42,7 +42,7 @@ typedef enum tire_type {
 
 
 #define PHYSICS_MODEL_STRUCT_DEFAULT  {(vect_t){0,0},(vect_t){0,0},(vect_t){0,0},(vect_t){64,64},\
-											(float)0.0, (float)0.0, (float)0.0,\
+											(float)-M_PI_2, (float)0.0, (float)0.0,\
 											NULL, ASPHALT}		// veh_desc, road_cond
 
 #define VEHICLE_DESC_STRUCT_DEFAULT {"Clunker",\
@@ -142,6 +142,7 @@ CPU_STK  PhysicsModelTaskStk[PHYSICS_MODEL_TASK_STK_SIZE];
 OS_TCB   PhysicsModelTaskTCB;
 
 OS_TMR phys_model_timer;
+OS_MUTEX vehicle_state_mutex;
 
 void create_physics_model_task(void);
 void delete_physics_model_task(void);

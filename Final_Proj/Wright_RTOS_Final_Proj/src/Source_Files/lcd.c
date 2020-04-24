@@ -79,7 +79,7 @@ void LCDTask(void *p_arg) {
 	int16_t disp_vehy;
 	float veh_spd;
 	float arrow_angle;
-	float lcd_angle_offset = 0;
+	float lcd_angle_offset = 90;
 	lcd_init();
 	while(1) {
 		OSSemPend(&phys_model_update_sem,
@@ -89,14 +89,38 @@ void LCDTask(void *p_arg) {
 					&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 		// get vehicle position
-		veh_x = (((int16_t)round(vehicle_model.p.x)) % MAX_X) + MAX_X; //positive modulus
-		veh_y = (int16_t)fabs(round(vehicle_model.p.y));
+		veh_x = (int16_t)round(vehicle_model.p.x); //positive modulus
+		veh_y = (int16_t)round(vehicle_model.p.y);
 
-		arrow_angle = (vehicle_model.az * RAD2DEG) - lcd_angle_offset;
+
+		if (vehicle_model.p.x < 0) {
+			OSMutexPend(&vehicle_state_mutex,0,OS_OPT_PEND_BLOCKING, 0 , &err);
+			while (vehicle_model.p.x < 0)
+				vehicle_model.p.x += MAX_X; // serves as modulus for negative value
+			OSMutexPost(&vehicle_state_mutex, OS_OPT_POST_NONE,&err);
+		}
+		else if (vehicle_model.p.x > MAX_X) {
+			OSMutexPend(&vehicle_state_mutex,0,OS_OPT_PEND_BLOCKING, 0 , &err);
+			vehicle_model.p.x = (float)(((int)round(vehicle_model.p.x)) % (MAX_X+1));
+			OSMutexPost(&vehicle_state_mutex, OS_OPT_POST_NONE,&err);
+		}
+		if (vehicle_model.p.y < 0) {
+			OSMutexPend(&vehicle_state_mutex,0,OS_OPT_PEND_BLOCKING, 0 , &err);
+			while (vehicle_model.p.y < 0)
+				vehicle_model.p.y += MAX_Y;
+			OSMutexPost(&vehicle_state_mutex, OS_OPT_POST_NONE,&err);
+		}
+		else if (vehicle_model.p.y > MAX_X) {
+			OSMutexPend(&vehicle_state_mutex,0,OS_OPT_PEND_BLOCKING, 0 , &err);
+			vehicle_model.p.y = (float)(((int)round(vehicle_model.p.y)) % (MAX_Y+1));
+			OSMutexPost(&vehicle_state_mutex, OS_OPT_POST_NONE,&err);
+		}
+
+		arrow_angle = (vehicle_model.az * RAD2DEG) + lcd_angle_offset;
 
 		//remap model coordinates to LCD coordinates.
-		disp_vehy = MAX_X - (veh_x % MAX_X);
-		disp_vehx = (veh_y) % MAX_Y;
+		disp_vehy = veh_y;
+		disp_vehx = (veh_x);
 
 
 		veh_spd = vect_mag(vehicle_model.v);

@@ -154,10 +154,10 @@ void InputFifo2_Put(InputFifo2_t *p_Fifo, InputValue2_t value)
 	    p_Fifo->num_items++;
 	// handle overflowing into head. Lose data
 	// This is ok because at that point it is outdated.
-	else if (p_Fifo->num_items == FIFO_DEPTH)
+	else if (p_Fifo->num_items == FIFO2_DEPTH)
 	{
 		// bump head if we are full
-		p_Fifo->head = (p_Fifo->tail % FIFO_DEPTH);
+		p_Fifo->head = (p_Fifo->tail % FIFO2_DEPTH);
 	}
 	return;
 }

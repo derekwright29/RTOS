@@ -44,7 +44,7 @@ extern float course_headings[MAX_NUM_WAYPOINTS];
 #define SPARSE_R_HEADINGS		{ 					0.,	 					0., 					0., 					0., 					0.,\
 								  	  	  	  	  0.32175, 				  1.107,				1.91382,				2.32395, 				2.896613,\
 												  3.4633,				3.92699,				4.248741,				3.60524,				1.7681919,\
-												  7681919,				2.35619}
+												  1.7681919,				2.35619}
 
 #define DENSE_R_WAYPOINTS		{(int_vect_t) {10,10}}
 

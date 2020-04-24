@@ -103,11 +103,12 @@ void FVehicleMonitorTask(void * p_arg) {
         //send warning to LED sem if warning
 		if (slip < 0) {
 			//send game_over sem to Menu if game over
+			GPIO_PinOutSet(LED0_port, LED0_pin);
 			OSFlagPost(&game_over_flag,
 					FAIL_SLIP,
 					OS_OPT_POST_FLAG_SET,
 					&err);
-					APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 		}
 		else if (slip < MONITOR_SLIP_THRESHOLD) {
 			//start LED toggling
@@ -119,8 +120,9 @@ void FVehicleMonitorTask(void * p_arg) {
 		}
 		else {
 			led0_blinking = false;
-			OSTmrStop(&LED0_timer, &err);
+			OSTmrStop(&LED0_timer, OS_OPT_TMR_NONE, 0,&err);
 			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+			GPIO_PinOutClear(LED0_port, LED0_pin);
 		}
 
 
@@ -138,7 +140,8 @@ void FVehicleMonitorTask(void * p_arg) {
 		gate_heading = course_headings[waypoint_index-ROAD_GEN_WP_BUFFER_SIZE];
 		if (gate_heading < M_PI_2 && gate_heading >= 0.) {
 			//quadrant 1
-			if (vehicle_model.p.y < (tan(gate_heading)*(vehicle_model.p.x - active_wp.x) + active_wp.y)) {
+			//second part of this if statement is limitting the window we can activate, so that it is not a pillar that extends to end of screen.
+			if (vehicle_model.p.y < (tan(gate_heading)*(vehicle_model.p.x - active_wp.x) + active_wp.y) && (vehicle_model.p.y > (tan(gate_heading)*(vehicle_model.p.x - active_wp.x) + active_wp.y) - 5)) {
 				// means y has crossed gate, now check x
 				if((vehicle_model.p.x > (active_wp.x - cos(gate_heading)*course.RoadWidth/2)) && (vehicle_model.p.x < (active_wp.x + cos(gate_heading)*course.RoadWidth/2))){
 					if(!course_active)
@@ -158,7 +161,7 @@ void FVehicleMonitorTask(void * p_arg) {
 		}
 		else if (gate_heading >= M_PI_2 && gate_heading < M_PI) {
 			//quadrant 2
-			if (vehicle_model.p.x > ((cos(gate_heading)*(vehicle_model.p.x - active_wp.y)/sin(gate_heading))+active_wp.x)) {
+			if (vehicle_model.p.x > ((cos(gate_heading)*(vehicle_model.p.y - active_wp.y)/sin(gate_heading))+active_wp.x) && (vehicle_model.p.x < ((cos(gate_heading)*(vehicle_model.p.y - active_wp.y)/sin(gate_heading))+active_wp.x) + 5)) {
 				// we are "right of gate", check if y is in bounds
 				if ((vehicle_model.p.y > (active_wp.y - sin(gate_heading)*course.RoadWidth/2)) && (vehicle_model.p.y < (active_wp.y + sin(gate_heading)*course.RoadWidth/2))) {
 					if(!course_active)
@@ -177,9 +180,9 @@ void FVehicleMonitorTask(void * p_arg) {
 		}
 		if ((gate_heading < (3*M_PI_2)) && (gate_heading >= M_PI)) {
 			//quadrant 3
-			if (vehicle_model.p.y > (tan(gate_heading)*(vehicle_model.p.x - active_wp.x) + active_wp.y)) {
+			if (vehicle_model.p.y > (tan(gate_heading)*(vehicle_model.p.x - active_wp.x) + active_wp.y) && (vehicle_model.p.y < (tan(gate_heading)*(vehicle_model.p.x - active_wp.x) + active_wp.y) + 5)) {
 				// means y has crossed gate, now check x
-				if((vehicle_model.p.x > (active_wp.x - cos(gate_heading)*course.RoadWidth/2)) && (vehicle_model.p.x < (active_wp.x + cos(gate_heading)*course.RoadWidth/2))){
+				if((vehicle_model.p.x > (active_wp.x + cos(gate_heading)*course.RoadWidth/2)) && (vehicle_model.p.x < (active_wp.x - cos(gate_heading)*course.RoadWidth/2))){
 					if(!course_active)
 						course_active = true;
 					// within bounds of gate. success, post to road_gen
@@ -196,10 +199,10 @@ void FVehicleMonitorTask(void * p_arg) {
 
 		}
 		else if (gate_heading >= 3*M_PI_2 && gate_heading < M_TWOPI) {
-			//quadrant 2
-			if (vehicle_model.p.x < ((cos(gate_heading)*(vehicle_model.p.x - active_wp.y)/sin(gate_heading))+active_wp.x)) {
+			//quadrant 4
+			if ((vehicle_model.p.x < ((cos(gate_heading)*(vehicle_model.p.x - active_wp.y)/sin(gate_heading))+active_wp.x)) && (vehicle_model.p.x > ((cos(gate_heading)*(vehicle_model.p.x - active_wp.y)/sin(gate_heading))+active_wp.x) - 5)) {
 				// we are "right of gate", check if y is in bounds
-				if ((vehicle_model.p.y > (active_wp.y - sin(gate_heading)*course.RoadWidth/2)) && (vehicle_model.p.y < (active_wp.y + sin(gate_heading)*course.RoadWidth/2))) {
+				if ((vehicle_model.p.y > (active_wp.y + sin(gate_heading)*course.RoadWidth/2)) && (vehicle_model.p.y < (active_wp.y - sin(gate_heading)*course.RoadWidth/2))) {
 					if(!course_active)
 						course_active = true;
 					// within bounds of gate. success, post to road_gen

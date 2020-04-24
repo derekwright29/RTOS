@@ -7,7 +7,7 @@ phys_model_t vehicle_model = PHYSICS_MODEL_STRUCT_DEFAULT;
 vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_applied, float turn) {
 	RTOS_ERR err;
 	bool turning = false;
-	float last_az = 0;
+	float last_az = -M_PI_2;
 
 	int8_t accel = power_applied > 0 ? 1 : (power_applied == 0 ? 0 : -1);
 
@@ -49,7 +49,7 @@ vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_app
 
     if (turning && !power_applied){// for friction: && (vect_mag(af) > 0)) {
 
-    	p_model->v = vect_parallel(p_model->v, v_mag);
+    	p_model->v = vect_parallel(p_model->v, v_mag); //* FRICTION_TURN_FUDGE_FACTOR
     }
 
 //    float friction = get_friction (p_model->road, p_model->vehicle->TireType);
@@ -102,6 +102,8 @@ void create_physics_model_task() {
 	vehicle_model.vehicle = &vehicle_desc;
 	vehicle_model.road = road_cond;
 
+	OSMutexCreate(&vehicle_state_mutex, "Vehicle State Mutex", &err);
+	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 //	create_phys_model_timer();
 
 	OSTaskCreate(&PhysicsModelTaskTCB,                          /* Create the Speed Task.                               */
@@ -169,7 +171,9 @@ void PhysicsModelTask(void* p_arg) {
 
 		//update phys model
 		//get mustex on p_model
+		OSMutexPend(&vehicle_state_mutex,0,OS_OPT_PEND_BLOCKING, 0 , &err);
 		phys_model_take_step(&vehicle_model, pow_cnt, capsense_turn_value);
+		OSMutexPost(&vehicle_state_mutex, OS_OPT_POST_NONE,&err);
 		//send Flag to LCD AND Monitor Task to update ------> if Monitor detects error or  we got to the waypoint, send flag to Menu/LCD for game over and roadgen to get new waypoint and add to 5-deep ready queue.
 		OSSemPost(&phys_model_update_sem, OS_OPT_POST_ALL, &err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);

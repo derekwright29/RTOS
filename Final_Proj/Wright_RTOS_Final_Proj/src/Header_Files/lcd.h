@@ -96,6 +96,9 @@ extern OS_SEM phys_model_update_sem;
  */
 void create_lcd_task(void);
 
+void delete_lcd_task(void);
+
+
 /**
  * LCDTask()
  * ----------------

@@ -101,12 +101,13 @@ void delete_roadgen_task() {
 void roadgen_init(void ) {
 	RTOS_ERR err;
 	WayPointBuffer.num_items = 0;
+	waypoint_index = 0;
 	uint8_t fill_index = 0;
 	create_roadgen_sems();
 //	create_roadgen_test_timer();
 	while (InputFifo2_getNumItems(&WayPointBuffer) < ROAD_GEN_WP_BUFFER_SIZE) {
 		//init/fill waypoint buffer for LCD
-		InputFifo2_Put(&WayPointBuffer, course.Waypoints[fill_index++]);
+		InputFifo2_Put(&WayPointBuffer, course.Waypoints[waypoint_index++]);
 	}
 //	OSTmrStart(&road_gen_test_timer, &err);
 //	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);

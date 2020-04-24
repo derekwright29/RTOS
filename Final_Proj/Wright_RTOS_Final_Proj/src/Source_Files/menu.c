@@ -15,7 +15,6 @@ void MenuTask(void *p_arg) {
 	InputValue_t ret;
 	bool isStartMenu = true, isPress = false, isScroll = false, selectIsActive = false;
 	uint8_t selection=0, screen=0;
-	uint8_t start_signal;
 
 	menu_init();
 
@@ -89,6 +88,9 @@ void MenuTask(void *p_arg) {
 		//Delete tasks in order to restart them.
 		take_menu_control();
 		screen = GAME_OVER;
+		//reset button sem to take new input
+		OSSemSet(&button_sem, 0 , &err);
+		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 		while(!isStartMenu) {
 
 			//TODO: implement
@@ -213,6 +215,7 @@ void write_menu(uint8_t screen, uint8_t selection, bool select_active) {
 
 	switch (screen) {
 		case WELCOME:
+			GLIB_clear(&menu_context);
 			GLIB_drawString(&menu_context, "Welcome to the Game!", 20,
 	                  5,
 	                  5,
@@ -304,7 +307,7 @@ void write_gameover(uint8_t screen, failure_t failure_cause, stats_t stats) {
 		case GAME_OVER:
 			if(failure_cause == FAIL_NO_FAIL) {
 				GLIB_drawString(&menu_context, "Congrats! You ", 14, 30,30,0);
-				GLIB_drawString(&menu_context, "completed the course", 20, 5,70,0);
+				GLIB_drawString(&menu_context, "completed the course", 20, 5,40,0);
 				GLIB_drawString(&menu_context, "For Stats:", 20, 40,90,0);
 				GLIB_drawString(&menu_context, "press a button", 14, 20,110,0);
 			}
@@ -318,9 +321,9 @@ void write_gameover(uint8_t screen, failure_t failure_cause, stats_t stats) {
 			break;
 		case STATS:
 			GLIB_drawString(&menu_context, "Stats ", 14, 30,30,0);
-			GLIB_drawString(&menu_context, "Time on Course:", 13, 5,70,0);
+			GLIB_drawString(&menu_context, "Time on Course:", 15, 5,70,0);
 			gcvt(stats.time_on_course, 4, print_buf);
-			GLIB_drawString(&menu_context, print_buf, 13, 90,70,0);
+			GLIB_drawString(&menu_context, print_buf, 13, 95,70,0);
 
 			GLIB_drawString(&menu_context, "Max Speed:", 13, 5,90,0);
 			gcvt(stats.max_speed, 4, print_buf);
@@ -328,10 +331,12 @@ void write_gameover(uint8_t screen, failure_t failure_cause, stats_t stats) {
 
 			break;
 	}
+	DMD_updateDisplay();
 	return;
 }
 
 void release_menu_control(void) {
+	waypoint_index = 0;
 	create_physics_model_task();
 	create_roadgen_task();
 	create_lcd_task();

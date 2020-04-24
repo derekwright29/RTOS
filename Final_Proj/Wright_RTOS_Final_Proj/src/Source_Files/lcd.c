@@ -130,7 +130,7 @@ void LCDTask(void *p_arg) {
 		gcvt(veh_spd, 3, spd_substr);
 		strcat(spd_substr1, spd_substr);
 		 GLIB_drawString(&glibContext, spd_substr1, 20, 5, 105, 0);
-		GLIB_drawCar(&glibContext, disp_vehx, disp_vehy, -20*capsense_turn_value + arrow_angle, 0);
+		GLIB_drawCar(&glibContext, disp_vehx, disp_vehy, -10*capsense_turn_value + arrow_angle, 0);
 //			printf("The current speed is %d mph   \nThe current direction is %s\033H", vehicle_speed.speed, dir_substr);
 
 		OSSchedUnlock(&err);
@@ -176,12 +176,28 @@ void lcd_init() {
 
 
 void LCD_draw_gates() {
+	if (waypoint_index == 0)
+		//road_gen hasn't started up yet
+		return;
 	int_vect_t curr_wp;
+	bool end_sequence = false;
 	uint8_t wp_cnt = 0;
 	float gate_heading;
+	uint8_t num_to_print = InputFifo2_getNumItems(&WayPointBuffer);
+	if (waypoint_index >= (course.NumWaypoints - LCD_NUM_GATES_TO_DRAW + ROAD_GEN_WP_BUFFER_SIZE)) {
+		end_sequence = true;
+	}
+	if (num_to_print >= LCD_NUM_GATES_TO_DRAW){
+		num_to_print = LCD_NUM_GATES_TO_DRAW;
+	}
 	// this is subtle. When the road generation is done, we just want to take the remaining gates in the queue
-	while (     (wp_cnt < LCD_NUM_GATES_TO_DRAW) && (InputFifo2_Peek(&WayPointBuffer, wp_cnt, (InputValue2_t *)&curr_wp))    ) {
-		gate_heading = M_PI/2. + Sparse_R_Headings[waypoint_index - (ROAD_GEN_WP_BUFFER_SIZE-1) + wp_cnt];
+	while (     (wp_cnt < num_to_print) && (InputFifo2_Peek(&WayPointBuffer, wp_cnt, (InputValue2_t *)&curr_wp))    ) {
+		if (!end_sequence) {
+			gate_heading = M_PI/2. + course_headings[waypoint_index - (ROAD_GEN_WP_BUFFER_SIZE) + wp_cnt];
+		}
+		else {
+			gate_heading = course_headings[course.NumWaypoints - num_to_print + 1 + wp_cnt];
+		}
 		// delta waypoint to be added to center waypoint to form gate
 		vect_t d_wp = vect_orth(vect_get_unitvector(gate_heading), ((float)course.RoadWidth) / 2., LEFT_NINETY);
 		int_vect_t dwp = (int_vect_t) {round(d_wp.x), round(d_wp.y)};

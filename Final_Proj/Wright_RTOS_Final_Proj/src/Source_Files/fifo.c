@@ -177,7 +177,7 @@ bool InputFifo2_Get(InputFifo2_t *p_Fifo, InputValue2_t *p_value)
     // printf("In Get: value of head is %d\n", p_Fifo->head);
 	*p_value = p_Fifo->input[p_Fifo->head++];
 	p_Fifo->num_items--;
-    p_Fifo->head %= FIFO_DEPTH;
+    p_Fifo->head %= FIFO2_DEPTH;
 	return true;
 }
 

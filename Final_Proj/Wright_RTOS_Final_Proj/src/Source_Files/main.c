@@ -226,6 +226,7 @@ static  void  MainStartTask (void  *p_arg)
     //simulate menu task
     vehicle_desc = (vehicle_description_t) VEHICLE_DESC_STRUCT_DEFAULT;
     course = ROAD_DESC_SPARSE_R_DEFAULT;
+    memcpy(course_headings, Sparse_R_Headings, course.NumWaypoints*sizeof(float));
     road_cond = ASPHALT;
 
 	/* Create OS Constructs Necessary for given tasks */

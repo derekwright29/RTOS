@@ -24,9 +24,12 @@ typedef enum road_conditions {
     ICE = 5
 }road_condition_t;
 
+#define MAX_NUM_WAYPOINTS 	50
+
 
 extern road_description_t course;
 extern road_condition_t road_cond;
+extern float course_headings[MAX_NUM_WAYPOINTS];
 
 
 
@@ -49,7 +52,6 @@ extern const int_vect_t Sparse_R[20];
 extern const float Sparse_R_Headings[20];
 extern const int_vect_t Dense_R[100];
 
-extern float cur_gate_heading;
 extern uint16_t waypoint_index;
 
 #define ROAD_DESC_SPARSE_R_DEFAULT		(road_description_t){"Sparse R", 20, 17, Sparse_R}

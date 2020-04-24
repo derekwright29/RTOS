@@ -12,6 +12,7 @@ const int_vect_t DenseR[100] = DENSE_R_WAYPOINTS;
 const float Sparse_R_Headings[20] = SPARSE_R_HEADINGS;
 
 road_description_t course = ROAD_DESC_SPARSE_R_DEFAULT;
+float course_headings[MAX_NUM_WAYPOINTS];
 road_condition_t road_cond = ROAD_CONDITION_DEFAULT;
 uint16_t waypoint_index;
 
@@ -24,7 +25,7 @@ void RoadGenTask(void *p_arg) {
 	int_vect_t ret; //dummy var
 
 	// should be ROAD_GEN_WP_BUFFER_SIZE - 1
-	waypoint_index = InputFifo2_getNumItems(&WayPointBuffer) - 1;
+	waypoint_index = InputFifo2_getNumItems(&WayPointBuffer);
 	while(1) {
 //		wait for need for new waypoint
 		 OSSemPend(&new_waypoint_sem,

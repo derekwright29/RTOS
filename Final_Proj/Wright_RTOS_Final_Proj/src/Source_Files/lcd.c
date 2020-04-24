@@ -123,13 +123,13 @@ void LCDTask(void *p_arg) {
 
 		GLIB_clear(&glibContext);
 		LCD_draw_gates();
-		// GLIB_drawString(&glibContext, spd_substr1, 20, 5, 5, 0);
-		// GLIB_drawString(&glibContext, dir_substr1, 20, 5, 25, 0);
+		 GLIB_drawString(&glibContext, spd_substr1, 20, 5, 5, 0);
+		 GLIB_drawString(&glibContext, dir_substr1, 20, 5, 25, 0);
 		strcpy(spd_substr1, "Radius: ");
 		veh_spd = capsense_turn_value ? 1/capsense_turn_value : 0;
 		gcvt(veh_spd, 3, spd_substr);
 		strcat(spd_substr1, spd_substr);
-		// GLIB_drawString(&glibContext, spd_substr1, 20, 5, 105, 0);
+		 GLIB_drawString(&glibContext, spd_substr1, 20, 5, 105, 0);
 		GLIB_drawCar(&glibContext, disp_vehx, disp_vehy, -20*capsense_turn_value + arrow_angle, 0);
 //			printf("The current speed is %d mph   \nThe current direction is %s\033H", vehicle_speed.speed, dir_substr);
 
@@ -178,8 +178,15 @@ void lcd_init() {
 void LCD_draw_gates() {
 	int_vect_t curr_wp;
 	uint8_t wp_cnt = 0;
-	while (wp_cnt < LCD_NUM_GATES_TO_DRAW) {
-		InputFifo2_Peek(&WayPointBuffer, wp_cnt, (InputValue2_t *)&curr_wp);
+	float gate_heading;
+	// this is subtle. When the road generation is done, we just want to take the remaining gates in the queue
+	while (     (wp_cnt < LCD_NUM_GATES_TO_DRAW) && (InputFifo2_Peek(&WayPointBuffer, wp_cnt, (InputValue2_t *)&curr_wp))    ) {
+		gate_heading = M_PI/2. + Sparse_R_Headings[waypoint_index - (ROAD_GEN_WP_BUFFER_SIZE-1) + wp_cnt];
+		// delta waypoint to be added to center waypoint to form gate
+		vect_t d_wp = vect_orth(vect_get_unitvector(gate_heading), ((float)course.RoadWidth) / 2., LEFT_NINETY);
+		int_vect_t dwp = (int_vect_t) {round(d_wp.x), round(d_wp.y)};
+		GLIB_drawLine(&glibContext, curr_wp.x + dwp.x, curr_wp.y + dwp.y,
+				curr_wp.x - dwp.x, curr_wp.y - dwp.y);
 		GLIB_drawCircleFilled(&glibContext, curr_wp.x, curr_wp.y, 2);
 		wp_cnt++;
 	}

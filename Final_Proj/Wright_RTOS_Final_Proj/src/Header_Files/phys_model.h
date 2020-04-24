@@ -34,7 +34,7 @@ typedef enum tire_type {
 /* Physics/ Vehicle Description
  * *************************************************************************************/
 
-#define PHYS_MODEL_TIME_STEP       0.1 //seconds
+#define PHYS_MODEL_TIME_STEP       0.05 //seconds
 
 #define G               9.8  //m/s^2
 
@@ -141,7 +141,10 @@ typedef struct physics_params {
 CPU_STK  PhysicsModelTaskStk[PHYSICS_MODEL_TASK_STK_SIZE];
 OS_TCB   PhysicsModelTaskTCB;
 
+OS_TMR phys_model_timer;
+
 void create_physics_model_task(void);
+void create_phys_model_timer(void );
 void PhysicsModelTask(void *p_arg);
 
 /********************************************************************************************************

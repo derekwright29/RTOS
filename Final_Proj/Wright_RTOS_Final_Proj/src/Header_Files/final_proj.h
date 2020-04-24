@@ -53,8 +53,14 @@
 
 
 /**
- * Coonfiguration defines
+ * Configuration defines
  * */
+//#define MENU_TASK_EN
+//#define MONITOR_TASK_EN
+//#define LED_TASK_EN
+//#define LCD_TASK_EN
+//#define PHYS_MODEL_TASK_EN
+//#define ROAD_GEN_TASK_EN
 
 /**
  * Globals that multiple files might need

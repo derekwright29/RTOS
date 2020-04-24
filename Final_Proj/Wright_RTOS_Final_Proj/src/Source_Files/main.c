@@ -208,7 +208,7 @@ int  main (void)
 *********************************************************************************************************
 */
 
-RTOS_ERR  glob_err;
+static RTOS_ERR  glob_err;
 static  void  MainStartTask (void  *p_arg)
 {
     PP_UNUSED_PARAM(p_arg);                                     /* Prevent compiler warning.                            */
@@ -238,4 +238,6 @@ static  void  MainStartTask (void  *p_arg)
 //	create_lcd_task();
 	create_idle_task();
 
+	OSTaskDel(&MainStartTaskTCB, &glob_err);
+	APP_RTOS_ASSERT_CRITICAL(glob_err.Code == RTOS_ERR_NONE, ;);
 }

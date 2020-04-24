@@ -35,7 +35,7 @@ OS_TCB   LcdTaskTCB;
 #define DIR_SUBSTR_MAX_LENGTH			11
 #define SPD_SUBSTR_MAX_LENGTH			40
 
-#define LCD_NUM_GATES_TO_DRAW       10
+#define LCD_NUM_GATES_TO_DRAW       5
 
 
 /********************************

@@ -259,7 +259,7 @@ void toggle_menu_control(void) {
 	create_physics_model_task();
 ////	create_led_task();
 	create_lcd_task();
-//	create_roadgen_task();
+	create_roadgen_task();
 	// create_fmonitor_task();
 	return;
 }

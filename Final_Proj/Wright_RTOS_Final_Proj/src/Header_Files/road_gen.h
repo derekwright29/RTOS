@@ -33,15 +33,24 @@ extern road_condition_t road_cond;
 /*
  * Course definitions
  * */
-#define SPARSE_R_WAYPOINTS 		 { (int_vect_t){20,120},		(int_vect_t){20,110},		(int_vect_t){20,100},		(int_vect_t){20,80},		(int_vect_t){20,60},\
-									(int_vect_t){30,30},		(int_vect_t){50,20}, 	(int_vect_t){64,25},	(int_vect_t){80,40},	(int_vect_t){85,60},\
+#define SPARSE_R_WAYPOINTS 		 { (int_vect_t){20,120},	(int_vect_t){20,110},	(int_vect_t){20,100},	(int_vect_t){20,80},	(int_vect_t){20,60},\
+									(int_vect_t){30,30},	(int_vect_t){50,20}, 	(int_vect_t){64,25},	(int_vect_t){80,40},	(int_vect_t){85,60},\
 									(int_vect_t){80,75},	(int_vect_t){70,85},	(int_vect_t){60,90},	(int_vect_t){55,100},	(int_vect_t){80,105},\
 									(int_vect_t){105,110},	(int_vect_t){115,120}    }
+
+#define SPARSE_R_HEADINGS		{ 					0.,	 					0., 					0., 					0., 					0.,\
+								  	  	  	  	  0.32175, 				  1.107,				1.91382,				2.32395, 				2.896613,\
+												  3.4633,				3.92699,				4.248741,				3.60524,				1.7681919,\
+												  7681919,				2.35619}
 
 #define DENSE_R_WAYPOINTS		{(int_vect_t) {10,10}}
 
 extern const int_vect_t Sparse_R[20];
+extern const float Sparse_R_Headings[20];
 extern const int_vect_t Dense_R[100];
+
+extern float cur_gate_heading;
+extern uint16_t waypoint_index;
 
 #define ROAD_DESC_SPARSE_R_DEFAULT		(road_description_t){"Sparse R", 20, 17, Sparse_R}
 #define ROAD_CONDITION_DEFAULT			(road_condition_t) ASPHALT
@@ -57,6 +66,7 @@ CPU_STK  RoadGenTaskStk[ROADGEN_TASK_STK_SIZE];
 OS_TCB   RoadGenTaskTCB;
 
 OS_SEM new_waypoint_sem;
+OS_TMR road_gen_test_timer;
 
 
 void create_roadgen_task(void);
@@ -66,6 +76,10 @@ void roadgen_init(void );
 void create_roadgen_sems(void );
 
 void RoadGenTask(void *p_arg);
+
+void create_roadgen_test_timer(void);
+
+void RoadGenTimerCallback(void);
 
 
 

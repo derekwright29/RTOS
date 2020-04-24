@@ -29,7 +29,7 @@ vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_app
     	af = vect_parallel(p_model->v, v_mag * -0.1);
     }
     else
-    	af = vect_parallel(vect_get_unitvector(p_model->az), accel*p_model->vehicle->PowerDelta / p_model->vehicle->Mass - DEFAULT_MU* G);
+    	af = vect_parallel(vect_get_unitvector(p_model->az), accel*p_model->vehicle->PowerDelta / p_model->vehicle->Mass);// - DEFAULT_MU* G);
     if (turn == 0) {
     	v_inc = vect_mult(af,PHYS_MODEL_TIME_STEP);
     }
@@ -47,7 +47,7 @@ vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_app
     p_model->v = vect_plus(p_model->v, v_inc);
     p_model->p = vect_plus(p_model->p, p_inc);
 
-    if (turning && !power_applied && (vect_mag(af) > 0)) {
+    if (turning && !power_applied){// for friction: && (vect_mag(af) > 0)) {
 
     	p_model->v = vect_parallel(p_model->v, v_mag);
     }
@@ -102,6 +102,8 @@ void create_physics_model_task() {
 	vehicle_model.vehicle = &vehicle_desc;
 	vehicle_model.road = road_cond;
 
+	create_phys_model_timer();
+
 	OSTaskCreate(&PhysicsModelTaskTCB,                          /* Create the Speed Task.                               */
 				 "Physics Model Task",
 				  PhysicsModelTask,
@@ -116,6 +118,21 @@ void create_physics_model_task() {
 				 (OS_OPT_TASK_STK_CLR),
 				 &err);
 	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+}
+
+void create_phys_model_timer(void ) {
+	// TODO: configure timer task tick to be 10 ms (100Hz) haven't found a way yet.
+//	RTOS_ERR err;
+//	OSTmrCreate(&phys_model_timer,
+//					"Phys Model Timer",
+//					0,
+//					5,
+//					OS_OPT_TMR_PERIODIC,
+//					(OS_TMR_CALLBACK_PTR)RoadGenTimerCallback,
+//					DEF_NULL,
+//					&err);
+//	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+	return;
 }
 
 void PhysicsModelTask(void* p_arg) {
@@ -212,5 +229,7 @@ float determine_az(phys_model_t *p_model) {
 		return M_PI + vect_get_heading(p_model->v); // quadrants III and IV
 	}
 }
+
+
 
 

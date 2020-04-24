@@ -154,6 +154,7 @@ void FVehicleMonitorTask(void * p_arg) {
 					if (course_active) {
 						OSFlagPost(&game_over_flag, FAIL_OFFROAD, OS_OPT_POST_FLAG_SET, &err);
 						APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+						GPIO_PinOutSet(LED1_port, LED1_pin);
 					}
 				}
 			}
@@ -174,6 +175,7 @@ void FVehicleMonitorTask(void * p_arg) {
 					if(course_active) {
 						OSFlagPost(&game_over_flag, FAIL_OFFROAD, OS_OPT_POST_FLAG_SET, &err);
 						APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+						GPIO_PinOutSet(LED1_port, LED1_pin);
 					}
 				}
 			}
@@ -193,6 +195,7 @@ void FVehicleMonitorTask(void * p_arg) {
 					if (course_active) {
 						OSFlagPost(&game_over_flag, FAIL_OFFROAD, OS_OPT_POST_FLAG_SET, &err);
 						APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+						GPIO_PinOutSet(LED1_port, LED1_pin);
 					}
 				}
 			}
@@ -213,6 +216,7 @@ void FVehicleMonitorTask(void * p_arg) {
 					if(course_active) {
 						OSFlagPost(&game_over_flag, FAIL_OFFROAD, OS_OPT_POST_FLAG_SET, &err);
 						APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+						GPIO_PinOutSet(LED1_port, LED1_pin);
 					}
 				}
 			}

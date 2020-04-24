@@ -99,10 +99,8 @@ void delete_roadgen_task() {
 
 
 void roadgen_init(void ) {
-	RTOS_ERR err;
-	WayPointBuffer.num_items = 0;
+	InputFifo2_resetFifo(&WayPointBuffer);
 	waypoint_index = 0;
-	uint8_t fill_index = 0;
 	create_roadgen_sems();
 //	create_roadgen_test_timer();
 	while (InputFifo2_getNumItems(&WayPointBuffer) < ROAD_GEN_WP_BUFFER_SIZE) {

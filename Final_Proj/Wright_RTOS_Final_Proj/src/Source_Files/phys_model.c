@@ -24,7 +24,8 @@ vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_app
     if ((v_mag < 0.001) && (power_applied == 0)) {
     	af = (vect_t) {0,0};
     }
-    else if ((v_mag < 0.5) && (power_applied == 0)) {
+    //slow to stop method
+    else if ((v_mag < 4) && (power_applied == 0)) {
     	//ramp down
     	af = vect_parallel(p_model->v, v_mag * -0.1);
     }
@@ -45,6 +46,9 @@ vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_app
     p_inc = vect_mult(p_model->v, PHYS_MODEL_TIME_STEP);
 
     p_model->v = vect_plus(p_model->v, v_inc);
+    if (vect_mag(p_model->v) < .01){
+    	p_model->v = (vect_t) {0.,0.};
+    }
     p_model->p = vect_plus(p_model->p, p_inc);
 
     if (turning && !power_applied){// for friction: && (vect_mag(af) > 0)) {
@@ -145,8 +149,6 @@ void create_phys_model_timer(void ) {
 
 void PhysicsModelTask(void* p_arg) {
 	RTOS_ERR err;
-	//dummy variable to store button flags
-	InputValue_t ret;
 
 	//capsense stuff
 	init_capsense();
@@ -154,15 +156,14 @@ void PhysicsModelTask(void* p_arg) {
 
 	//phys_mod stuff
 	int16_t pow_cnt= 0;
-	float turn;
 
 	while(1) {
 		pow_cnt = 0;
 		// get button info
 		pow_cnt += button0_isPressed();
 		pow_cnt -= button1_isPressed();
-//		if (vect_mag(vehicle_model.v)
-//			pow_cnt = 0; //don't allow reverse yet.
+		if ((vect_mag(vehicle_model.v) < 4) && (pow_cnt < 0))
+			pow_cnt = 0; //don't allow reverse yet.
 
 		//get capsense info
 		sample_capsense();

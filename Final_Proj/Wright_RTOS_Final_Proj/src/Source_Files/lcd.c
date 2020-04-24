@@ -123,7 +123,7 @@ void LCDTask(void *p_arg) {
 		disp_vehx = (veh_x);
 
 
-		veh_spd = vect_mag(vehicle_model.v);
+		veh_spd = 0.01*(((int16_t)vect_mag(vehicle_model.v))*100);
 
 		OSSchedLock(&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
@@ -138,12 +138,12 @@ void LCDTask(void *p_arg) {
 		GLIB_clear(&glibContext);
 		LCD_draw_gates();
 		 GLIB_drawString(&glibContext, spd_substr1, 20, 5, 5, 0);
-		 GLIB_drawString(&glibContext, dir_substr1, 20, 5, 25, 0);
+//		 GLIB_drawString(&glibContext, dir_substr1, 20, 5, 25, 0);
 		strcpy(spd_substr1, "Radius: ");
 		veh_spd = capsense_turn_value ? 1/capsense_turn_value : 0;
 		gcvt(veh_spd, 3, spd_substr);
 		strcat(spd_substr1, spd_substr);
-		 GLIB_drawString(&glibContext, spd_substr1, 20, 5, 105, 0);
+//		 GLIB_drawString(&glibContext, spd_substr1, 20, 5, 105, 0);
 		GLIB_drawCar(&glibContext, disp_vehx, disp_vehy, -10*capsense_turn_value + arrow_angle, 0);
 //			printf("The current speed is %d mph   \nThe current direction is %s\033H", vehicle_speed.speed, dir_substr);
 

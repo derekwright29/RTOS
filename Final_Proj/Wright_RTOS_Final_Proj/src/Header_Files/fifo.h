@@ -49,6 +49,7 @@ bool InputFifo_Get(InputFifo_t *p_Fifo, InputValue_t *p_value);
 bool InputFifo_Peek(InputFifo_t *p_Fifo, FifoIndex_t index, InputValue_t *p_value);
 bool InputFifo_isEmpty(InputFifo_t *p_Fifo);
 uint8_t InputFifo_getNumItems(InputFifo_t * p_Fifo);
+void InputFifo_resetFifo(InputFifo_t * p_Fifo);
 
 
 
@@ -74,6 +75,7 @@ bool InputFifo2_Get(InputFifo2_t *p_Fifo, InputValue2_t *p_value);
 bool InputFifo2_Peek(InputFifo2_t *p_Fifo, FifoIndex2_t index, InputValue2_t *p_value);
 bool InputFifo2_isEmpty(InputFifo2_t *p_Fifo);
 uint8_t InputFifo2_getNumItems(InputFifo2_t * p_Fifo);
+void InputFifo2_resetFifo(InputFifo2_t * p_Fifo);
 
 
 

@@ -123,6 +123,18 @@ void MenuTask(void *p_arg) {
 				isScroll = false;
 				screen = WELCOME;
 				isStartMenu = true;
+				GPIO_PinOutClear(LED1_port, LED1_pin);
+				GPIO_PinOutClear(LED0_port, LED0_pin);
+				OSMutexPend(&vehicle_state_mutex, 5, OS_OPT_PEND_BLOCKING, 0, &err);
+				APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+				vehicle_model.v.x = 0;
+				vehicle_model.v.y = 0;
+				vehicle_model.p.x = 64;
+				vehicle_model.p.y = 64;
+				OSMutexPost(&vehicle_state_mutex, OS_OPT_POST_NONE, &err);
+				APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+				OSSemSet(&button_sem, 0 , &err);
+				APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 			}
 			OSTimeDly(100, OS_OPT_TIME_PERIODIC, &err);
 			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);

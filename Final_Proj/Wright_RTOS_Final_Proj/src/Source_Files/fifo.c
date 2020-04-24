@@ -118,6 +118,14 @@ uint8_t InputFifo_getNumItems(InputFifo_t * p_Fifo) {
 	return p_Fifo->num_items;
 }
 
+void InputFifo_resetFifo(InputFifo_t * p_Fifo) {
+	if (!p_Fifo)
+		return;
+	p_Fifo->head = 0;
+	p_Fifo->tail = 0;
+	p_Fifo->num_items = 0;
+}
+
 /****************************************************************************
 **************************************************************************
 **************************************************************************
@@ -227,6 +235,14 @@ uint8_t InputFifo2_getNumItems(InputFifo2_t * p_Fifo) {
 	if (!p_Fifo)
 		return 0;
 	return p_Fifo->num_items;
+}
+
+void InputFifo2_resetFifo(InputFifo2_t * p_Fifo) {
+	if (!p_Fifo)
+		return;
+	p_Fifo->head = 0;
+	p_Fifo->tail = 0;
+	p_Fifo->num_items = 0;
 }
 
 #endif

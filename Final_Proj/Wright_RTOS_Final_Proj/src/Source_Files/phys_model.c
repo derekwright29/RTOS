@@ -102,7 +102,7 @@ void create_physics_model_task() {
 	vehicle_model.vehicle = &vehicle_desc;
 	vehicle_model.road = road_cond;
 
-	create_phys_model_timer();
+//	create_phys_model_timer();
 
 	OSTaskCreate(&PhysicsModelTaskTCB,                          /* Create the Speed Task.                               */
 				 "Physics Model Task",
@@ -117,6 +117,12 @@ void create_physics_model_task() {
 				  DEF_NULL,
 				 (OS_OPT_TASK_STK_CLR),
 				 &err);
+	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+}
+
+void delete_physics_model_task() {
+	RTOS_ERR err;
+	OSTaskDel(&PhysicsModelTaskTCB, &err);
 	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 }
 
@@ -151,22 +157,11 @@ void PhysicsModelTask(void* p_arg) {
 	while(1) {
 		pow_cnt = 0;
 		// get button info
-//		while(!InputFifo_isEmpty((InputFifo_t *)&FIFO_Button0)){
-//			InputFifo_Get((InputFifo_t *)&FIFO_Button0, &ret);
-//			pow_cnt++;
-//		}
-//		while(!InputFifo_isEmpty((InputFifo_t *)&FIFO_Button1)) {
-//			InputFifo_Get((InputFifo_t *)&FIFO_Button1, &ret);
-//			pow_cnt--;
-//		}
 		pow_cnt += button0_isPressed();
 		pow_cnt -= button1_isPressed();
 //		if (vect_mag(vehicle_model.v)
 //			pow_cnt = 0; //don't allow reverse yet.
 
-
-			//get mutex
-			//release mutex
 		//get capsense info
 		sample_capsense();
 		//decides direction and also updates cap_state... I know...

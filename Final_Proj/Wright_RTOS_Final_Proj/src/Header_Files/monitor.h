@@ -2,13 +2,32 @@
 #define _MONITOR_H
 
 #include "final_proj.h"
-
+#include "menu.h"
 #include <kernel/include/os.h>
 
 
+#ifndef TYPES_DEFINED_
+#define TYPES_DEFINED_
+typedef enum FailModes {
+	FAIL_NO_FAIL = 1,
+	FAIL_SLIP = 2,
+	FAIL_OFFROAD = 4
+}failure_t;
+
+#define ALL_FAIL_FLAGS		(FAIL_NO_FAIL | FAIL_SLIP | FAIL_OFFROAD)
+
+
+typedef struct {
+    float max_speed;
+    float time_on_course;
+    bool success;
+    failure_t cause_of_fail;
+} stats_t;
+#endif
+
 #define FVEHICLE_MONITOR_TASK_PRIO					25u
 #define FVEHICLE_MONITOR_TASK_STK_SIZE				1024u
-CPU_STK  FVehicleMonitorTaskStk[VEHICLE_MONITOR_TASK_STK_SIZE];
+CPU_STK  FVehicleMonitorTaskStk[FVEHICLE_MONITOR_TASK_STK_SIZE];
 OS_TCB   FVehicleMonitorTaskTCB;
 
 // on own timer/timing?
@@ -22,12 +41,8 @@ typedef enum FVehicleAlert {
 }FVehicleAlert_t;
 #define F_ALERT_FLAGS_ALL 	(FALERT_DIRECTION_TIMEOUT | FALERT_SPEED_LIMIT | FALERT_TURN_SPEED_LIMIT | FALERT_NO_ALERT)
 
-typedef struct {
-    float max_speed;
-    float time_on_course;
-    float best_time;
-} stats_t;
 
+#define MONITOR_SLIP_THRESHOLD  1.0
 
 /*************************
  * LOCAL GLOBAL VARIABLES
@@ -36,11 +51,16 @@ OS_FLAG_GRP f_speed_flags;
 OS_FLAG_GRP f_dir_flags;
 OS_FLAG_GRP f_alert_flags;
 
+OS_SEM monitor_wakeup_sem;
 
-stats_t stats;
+OS_TMR LED0_timer;
+OS_TMR LED1_timer;
 
 
+extern stats_t stats;
 
+
+void f_create_monitor_task_timer(void);
 
 
 /**
@@ -54,6 +74,7 @@ stats_t stats;
  *
  */
 void f_create_vehicle_monitor_task(void);
+void f_delete_vehicle_monitor_task(void);
 
 /**
  * monitor_task_init()
@@ -92,5 +113,12 @@ void FVehicleMonitorTask(void * p_arg);
  *
  */
 void f_create_vehicle_flags(void);
+
+void MonitorTimerCallback (void );
+
+void f_create_monitor_timers(void);
+
+void LED0TimerCallback(void);
+void LED1TimerCallback(void);
 
 #endif /* _MONITOR_H */

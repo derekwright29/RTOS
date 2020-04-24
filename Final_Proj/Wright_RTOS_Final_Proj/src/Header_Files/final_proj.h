@@ -31,6 +31,7 @@
 #include "bspconfig.h"
 #include "main.h"
 #include "fifo.h"
+#include "monitor.h"
 #include "cmu.h"
 #include "../cpu_cfg_local.h"
 #include "em_cmu.h"
@@ -43,6 +44,7 @@
 #include "lcd.h"
 #include "road_gen.h"
 #include "phys_model.h"
+#include "menu.h"
 #include "my_vect.h"
 #include "general_tasks.h"
 #include  <kernel/include/os.h>
@@ -65,7 +67,6 @@
 /**
  * Globals that multiple files might need
  */
-
 
 
 

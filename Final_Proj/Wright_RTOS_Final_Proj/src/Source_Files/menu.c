@@ -15,6 +15,7 @@ void MenuTask(void *p_arg) {
 	InputValue_t ret;
 	bool isStartMenu = true, isPress = false, isScroll = false, selectIsActive = false;
 	uint8_t selection=0, screen=0;
+	uint8_t start_signal;
 
 	menu_init();
 
@@ -68,23 +69,67 @@ void MenuTask(void *p_arg) {
 				screen++;
 				selectIsActive = false;
 				if (screen == READY_TO_START) {
-					toggle_menu_control();
+					release_menu_control();
 					isStartMenu = false;
 				}
 			}
 			OSTimeDly(100, OS_OPT_TIME_PERIODIC, &err);
 			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 		} // end start-screen while
+
+		// wait for end of game
+		failure_t fail_flag = OSFlagPend(&game_over_flag,
+									ALL_FAIL_FLAGS,
+									0,
+									OS_OPT_PEND_BLOCKING,
+									(CPU_TS*)0,
+									&err);
+		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+		// now we have received Game Over signa
+		//Delete tasks in order to restart them.
+		take_menu_control();
+		screen = GAME_OVER;
 		while(!isStartMenu) {
-			OSSemPend(&game_over_sem,
+
+			//TODO: implement
+			write_gameover(screen, fail_flag, stats);
+
+			//block on button input
+			OSSemPend(&button_sem,
 							0,
 							OS_OPT_PEND_BLOCKING,
 							(CPU_TS*)0,
 							&err);
 			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
-			// now we have received Game Over signal
-			screen = GAME_OVER;
-			write_gameover(screen);
+
+			while(!InputFifo_isEmpty((InputFifo_t *)&FIFO_Button0)) {
+				InputFifo_Get((InputFifo_t *)&FIFO_Button0, &ret);
+				isPress = true;
+			}
+			while(!InputFifo_isEmpty((InputFifo_t *)&FIFO_Button1)) {
+				InputFifo_Get((InputFifo_t *)&FIFO_Button1, &ret);
+				isScroll = true;
+			}
+
+			if ((screen == GAME_OVER) && (isPress || isScroll)) {
+				isPress = false;
+				isScroll = false;
+				screen++;
+			}
+			else if (screen == STATS && (isPress || isScroll)) {
+				isScroll = false;
+				isScroll = false;
+				screen = WELCOME;
+				isStartMenu = true;
+			}
+			OSTimeDly(100, OS_OPT_TIME_PERIODIC, &err);
+			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+
+
+// screen states and actions here.
+
+
+
 		}
 
 
@@ -127,7 +172,7 @@ void menu_init(void) {
 //	 car_choices[1] =  (vehicle_description_t *)&sport;
 //	 car_choices[2] =  (vehicle_description_t *)&truck;
 
-	create_game_over_semaphore();
+	create_game_over_flag();
 
 	/* Initialize the display module. */
 	status = DISPLAY_Init();
@@ -152,12 +197,12 @@ void menu_init(void) {
 	DMD_updateDisplay();
 }
 
-void create_game_over_semaphore(void) {
+void create_game_over_flag(void) {
 	RTOS_ERR err;
 
 	//Create Model Sem
-	OSSemCreate(&game_over_sem,
-				"Game Over Semaphore",
+	OSFlagCreate(&game_over_flag,
+				"Game Over Flag",
 				0,
 				&err);
 	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
@@ -248,19 +293,57 @@ void write_menu(uint8_t screen, uint8_t selection, bool select_active) {
 	}
 
 	DMD_updateDisplay();
-
 }
 
-void write_gameover(uint8_t screen) {
+void write_gameover(uint8_t screen, failure_t failure_cause, stats_t stats) {
+	GLIB_clear(&menu_context);
+
+	char print_buf[50];
+
+	switch(screen) {
+		case GAME_OVER:
+			if(failure_cause == FAIL_NO_FAIL) {
+				GLIB_drawString(&menu_context, "Congrats! You ", 14, 30,30,0);
+				GLIB_drawString(&menu_context, "completed the course", 20, 5,70,0);
+				GLIB_drawString(&menu_context, "For Stats:", 20, 40,90,0);
+				GLIB_drawString(&menu_context, "press a button", 14, 20,110,0);
+			}
+			else{
+				GLIB_drawString(&menu_context, "You Failed! ", 14, 30,30,0);
+				GLIB_drawString(&menu_context, "Cause of Failure:", 20, 5,70,0);
+				get_failure_string(failure_cause , print_buf);
+				GLIB_drawString(&menu_context, print_buf, 20, 40,90,0);
+				GLIB_drawString(&menu_context, "press a button", 14, 20,110,0);
+			}
+			break;
+		case STATS:
+			GLIB_drawString(&menu_context, "Stats ", 14, 30,30,0);
+			GLIB_drawString(&menu_context, "Time on Course:", 13, 5,70,0);
+			gcvt(stats.time_on_course, 4, print_buf);
+			GLIB_drawString(&menu_context, print_buf, 13, 90,70,0);
+
+			GLIB_drawString(&menu_context, "Max Speed:", 13, 5,90,0);
+			gcvt(stats.max_speed, 4, print_buf);
+			GLIB_drawString(&menu_context, print_buf, 13, 90,90,0);
+
+			break;
+	}
 	return;
 }
 
-void toggle_menu_control(void) {
+void release_menu_control(void) {
 	create_physics_model_task();
-////	create_led_task();
 	create_roadgen_task();
 	create_lcd_task();
-	// create_fmonitor_task();
+	// f_create_vehicle_monitor_task();
+	return;
+}
+
+void take_menu_control(void) {
+	delete_physics_model_task();
+	delete_roadgen_task();
+//	delete_lcd_task();
+	 f_delete_vehicle_monitor_task();
 	return;
 }
 
@@ -296,4 +379,13 @@ void redraw_selection(uint8_t screen, uint8_t selection) {
 					CENTER_X - GLIB_FONT_WIDTH*3,
 					  40 +selection*20,
 					  0);
+}
+
+void get_failure_string(failure_t fail, char * buf) {
+	if (fail == FAIL_SLIP) {
+		strcpy(buf, "Slip Fail");
+	}
+	else if (fail == FAIL_OFFROAD) {
+		strcpy(buf, "Offroad Fail");
+	}
 }

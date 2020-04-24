@@ -144,6 +144,7 @@ OS_TCB   PhysicsModelTaskTCB;
 OS_TMR phys_model_timer;
 
 void create_physics_model_task(void);
+void delete_physics_model_task(void);
 void create_phys_model_timer(void );
 void PhysicsModelTask(void *p_arg);
 

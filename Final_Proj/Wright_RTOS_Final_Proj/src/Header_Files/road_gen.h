@@ -72,6 +72,7 @@ OS_TMR road_gen_test_timer;
 
 
 void create_roadgen_task(void);
+void delete_roadgen_task(void);
 
 void roadgen_init(void );
 

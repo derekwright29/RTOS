@@ -101,25 +101,6 @@ void LCDTask(void *p_arg) {
 
 		strcat(spd_substr1, spd_substr);
 		strcat(dir_substr1, dir_substr);
-//		sprintf(spd_substr, "Speed: %f \n", veh_spd);
-		switch(vehicle_dir.dir) {
-			case DIR_FAR_LEFT:
-				strcpy(dir_substr, "Hard Left ");
-				break;
-			case DIR_LEFT:
-				strcpy(dir_substr, "Left      ");
-				break;
-			case DIR_RIGHT:
-				strcpy(dir_substr, "Right     ");
-				break;
-			case DIR_FAR_RIGHT:
-				strcpy(dir_substr, "Hard Right");
-				break;
-			case DIR_STRAIGHT:
-			default:
-				strcpy(dir_substr, "Straight  ");
-				break;
-		} // end switch
 
 		GLIB_clear(&glibContext);
 		LCD_draw_gates();

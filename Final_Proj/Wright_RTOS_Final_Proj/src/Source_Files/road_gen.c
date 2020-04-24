@@ -87,17 +87,28 @@ void create_roadgen_task() {
 	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 }
 
+void delete_roadgen_task() {
+	RTOS_ERR err;
+
+	OSSemDel(&new_waypoint_sem, OS_OPT_DEL_NO_PEND, &err);
+	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+
+	OSTaskDel(&RoadGenTaskTCB, &err);
+	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+}
+
+
 void roadgen_init(void ) {
 	RTOS_ERR err;
 	WayPointBuffer.num_items = 0;
 	uint8_t fill_index = 0;
 	create_roadgen_sems();
-	create_roadgen_test_timer();
+//	create_roadgen_test_timer();
 	while (InputFifo2_getNumItems(&WayPointBuffer) < ROAD_GEN_WP_BUFFER_SIZE) {
 		//init/fill waypoint buffer for LCD
 		InputFifo2_Put(&WayPointBuffer, course.Waypoints[fill_index++]);
 	}
-	OSTmrStart(&road_gen_test_timer, &err);
+//	OSTmrStart(&road_gen_test_timer, &err);
 	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 }
 
@@ -125,6 +136,8 @@ void create_roadgen_test_timer(void) {
 	APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 }
 
+
+// only used when monitor task does not operate
 void RoadGenTimerCallback(void) {
 	RTOS_ERR err;
 	OSSemPost(&new_waypoint_sem,

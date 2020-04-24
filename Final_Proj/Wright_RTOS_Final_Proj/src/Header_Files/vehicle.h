@@ -106,11 +106,8 @@ OS_SEM button_sem;
 OS_MUTEX accel_mutex;
 OS_MUTEX turn_mutex;
 
-OS_TMR no_change_timer;
+OS_TMR monitor_task_timer;
 
-/* Vehicle Info data structures */
-VehicleSpeed_t vehicle_speed;
-VehicleDir_t vehicle_dir;
 
 
 /** **********************

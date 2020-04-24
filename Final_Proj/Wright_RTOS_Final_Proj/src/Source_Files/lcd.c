@@ -193,10 +193,10 @@ void LCD_draw_gates() {
 	// this is subtle. When the road generation is done, we just want to take the remaining gates in the queue
 	while (     (wp_cnt < num_to_print) && (InputFifo2_Peek(&WayPointBuffer, wp_cnt, (InputValue2_t *)&curr_wp))    ) {
 		if (!end_sequence) {
-			gate_heading = M_PI/2. + course_headings[waypoint_index - (ROAD_GEN_WP_BUFFER_SIZE) + wp_cnt];
+			gate_heading = M_PI_2 + course_headings[waypoint_index - (ROAD_GEN_WP_BUFFER_SIZE) + wp_cnt];
 		}
 		else {
-			gate_heading = course_headings[course.NumWaypoints - num_to_print + 1 + wp_cnt];
+			gate_heading = M_PI_2 + course_headings[course.NumWaypoints - num_to_print + wp_cnt];
 		}
 		// delta waypoint to be added to center waypoint to form gate
 		vect_t d_wp = vect_orth(vect_get_unitvector(gate_heading), ((float)course.RoadWidth) / 2., LEFT_NINETY);

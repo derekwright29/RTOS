@@ -30,11 +30,11 @@ void MenuTask(void *p_arg) {
 			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 			while(!InputFifo_isEmpty((InputFifo_t *)&FIFO_Button0)) {
 				InputFifo_Get((InputFifo_t *)&FIFO_Button0, &ret);
-				isPress = true;
+				isScroll = true;
 			}
 			while(!InputFifo_isEmpty((InputFifo_t *)&FIFO_Button1)) {
 				InputFifo_Get((InputFifo_t *)&FIFO_Button1, &ret);
-				isScroll = true;
+				isPress = true;
 			}
 			if ((screen == WELCOME) && (isPress || isScroll)) {
 				isPress = false;
@@ -70,8 +70,25 @@ void MenuTask(void *p_arg) {
 						vehicle_model.road = (road_condition_t) selection + 1;
 						break;
 					case CHOOSE_COURSE:
-//						course = (road_condition_t) course_choices[selection];
-//						course_headings =
+						if (selection == 0) {
+								course = ROAD_DESC_SPARSE_R_DEFAULT;
+								memcpy(course_headings, Sparse_R_Headings, sizeof(float)*course.NumWaypoints);
+								vehicle_model.p = SparseRStartPos;
+								vehicle_model.az = SparseRStartAz;
+						}
+						else if (selection == 1) {
+							course = ROAD_DESC_FLYING_Q;
+							memcpy(course_headings, Flying_Q_Headings, sizeof(float)*course.NumWaypoints);
+							vehicle_model.p = FlyingQStartPos;
+							vehicle_model.az = FlyingQStartAz;
+						}
+						else {
+							course = ROAD_DESC_SHARP_W;
+							memcpy(course_headings, Sharp_W_Headings, sizeof(float)*course.NumWaypoints);
+							vehicle_model.p = SharpWStartPos;
+							vehicle_model.az = SharpWStartAz;
+						}
+
 						break;
 				}
 				screen++;
@@ -191,10 +208,6 @@ void menu_init(void) {
 	//init display
 	DISPLAY_Init();
 
-//	 car_choices[0] =  (vehicle_description_t *)&clunker;
-//	 car_choices[1] =  (vehicle_description_t *)&sport;
-//	 car_choices[2] =  (vehicle_description_t *)&truck;
-
 	create_game_over_flag();
 
 	/* Initialize the display module. */
@@ -274,15 +287,15 @@ void write_menu(uint8_t screen, uint8_t selection, bool select_active) {
 	                  5,
 	                  5,
 	                  0);
-			GLIB_drawString(&menu_context, "Dense R", 7,
+			GLIB_drawString(&menu_context, "Sparse R", 8,
 							                CENTER_X - GLIB_FONT_WIDTH*1,
 							                  40,
 							                  0);
-			GLIB_drawString(&menu_context, "Sparse R", 8,
+			GLIB_drawString(&menu_context, "Flying Q", 8,
 											CENTER_X - GLIB_FONT_WIDTH*3,
 							                  60,
 							                  0);
-			GLIB_drawString(&menu_context, "Random", 6,
+			GLIB_drawString(&menu_context, "Sharp W", 7,
 											CENTER_X - GLIB_FONT_WIDTH*1,
 							                  80,
 							                  0);
@@ -323,6 +336,9 @@ void write_gameover(uint8_t screen, failure_t failure_cause, stats_t stats) {
 	GLIB_clear(&menu_context);
 
 	char print_buf[50];
+	float dist = stats.distance_travelled;
+	dist = (int)(dist*100);
+	dist = (float)(dist/100);
 
 	switch(screen) {
 		case GAME_OVER:
@@ -349,6 +365,9 @@ void write_gameover(uint8_t screen, failure_t failure_cause, stats_t stats) {
 			GLIB_drawString(&menu_context, "Max Speed:", 13, 5,90,0);
 			gcvt(stats.max_speed, 4, print_buf);
 			GLIB_drawString(&menu_context, print_buf, 13, 90,90,0);
+			GLIB_drawString(&menu_context, "Distance:", 10, 5,110,0);
+			gcvt(dist, 3, print_buf);
+			GLIB_drawString(&menu_context, print_buf, 13, 80,110,0);
 
 			break;
 	}
@@ -386,11 +405,11 @@ void redraw_selection(uint8_t screen, uint8_t selection) {
 			break;
 		case CHOOSE_COURSE:
 					if (selection == 0)
-						strcpy(msg, "Dense R");
-					else if (selection == 1)
 						strcpy(msg, "Sparse R");
+					else if (selection == 1)
+						strcpy(msg, "Flying Q");
 					else if (selection == 2)
-						strcpy(msg, "Random");
+						strcpy(msg, "Sharp W");
 					break;
 		case CHOOSE_COND:
 					if (selection == 0)

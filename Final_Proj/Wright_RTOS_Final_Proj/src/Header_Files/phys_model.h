@@ -10,8 +10,9 @@
 #include "final_proj.h"
 
 #ifndef M_PI
-    #define M_PI 3.14159265358979323846
+    #define M_PI 		3.14159265358979323846
 	#define M_PI_2		1.57079632679489661923
+	#define M_PI_4    	0.78539816339744830962
 #endif
 
 extern float capsense_turn_value;
@@ -32,11 +33,13 @@ typedef enum tire_type {
 /* Physics/ Vehicle Description
  * *************************************************************************************/
 
-#define PHYS_MODEL_TIME_STEP       0.05 //seconds
+#define PHYS_MODEL_TIME_STEP       		0.05 //seconds
+#define PHYS_MODEL_PERIOD_TICKS			50
 
-#define G               9.8  //m/s^2
+#define G               				9.8  //m/s^2
 
-#define DEFAULT_MU       5
+#define DEFAULT_MU       				3
+#define FRICTION_TURN_FUDGE_FACTOR		0.9
 
 
 #define PHYSICS_MODEL_STRUCT_DEFAULT  {(vect_t){0,0},(vect_t){0,0},(vect_t){0,0},(vect_t){64,64},\
@@ -49,7 +52,7 @@ typedef enum tire_type {
 										800,\
 										10,\
 										170,\
-										616,\
+										80,\
 										TOURISM\
 										}
 
@@ -59,7 +62,7 @@ typedef enum tire_type {
 										800,\
 										15,\
 										170,\
-										616,\
+										80,\
 										TOURISM\
 										}
 
@@ -69,7 +72,7 @@ typedef enum tire_type {
 										1200,\
 										9,\
 										170,\
-										216,\
+										160,\
 										HIGH_PERF\
 										}
 #define VEHICLE_DESC_STRUCT_TRUCK {"Truck",\
@@ -78,7 +81,7 @@ typedef enum tire_type {
 										1500,\
 										24,\
 										200,\
-										316,\
+										100,\
 										TRUCK\
 										}
 
@@ -93,13 +96,8 @@ typedef struct vehicle_info_struct
 	uint16_t TurnRadius;		// m, curb-to-curb
 	uint16_t VehicleWidth;	// cm
 
-	// Viewing Info, for 3-D POV
-//	uint16_t EyeballHeightAboveGround;	// cm
-//	uint16_t HorizontalAngleOfView;		// degrees
-//	uint16_t ViewInclination;			// degrees (positive=up)
-
 	// Vehicle characteristics for slippage
-	uint16_t DragArea;				// Cd*CrossSectionalArea as: Cd * Ft^2 * 100
+	uint16_t slipSpeed;
 	tire_t TireType;				// 0:truck, 1:tourism, 2:highperformance
 }vehicle_description_t;
 //Note: for road-excursion calculations, vehicle is assumed to have a circular footprint
@@ -196,5 +194,7 @@ vehicle_warning_t check_slip(float, float);
 float decideTurn(bool * state_array);
 
 float determine_az(phys_model_t *p_model);
+
+void get_road_params(float * accel_mult, float *turn_mult, float* fric_coeff);
 
 #endif /* __PHYS_MODEL_H */

@@ -49,8 +49,8 @@ void gpio_open(void){
 
 #if LAB2_USE_INTERRUPTS
 	//enable only rising edge of both push buttons. This is a button release
-	GPIO_IntConfig(BSP_GPIO_PB0_PORT, BSP_GPIO_PB0_PIN, true, false, true);
-	GPIO_IntConfig(BSP_GPIO_PB1_PORT, BSP_GPIO_PB1_PIN, true, false, true);
+	GPIO_IntConfig(BSP_GPIO_PB0_PORT, BSP_GPIO_PB0_PIN, false, true, true);
+	GPIO_IntConfig(BSP_GPIO_PB1_PORT, BSP_GPIO_PB1_PIN, false, true, true);
 
 	NVIC_ClearPendingIRQ(GPIO_EVEN_IRQn);
 	NVIC_ClearPendingIRQ(GPIO_ODD_IRQn);

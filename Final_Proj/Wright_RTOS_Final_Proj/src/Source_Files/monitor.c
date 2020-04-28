@@ -71,6 +71,7 @@ void f_monitor_task_init() {
 	RTOS_ERR err;
     stats.max_speed = 0;
     stats.time_on_course = 0;
+    stats.distance_travelled = 0;
     stats.success = false;
 
     OSSemCreate(&monitor_wakeup_sem,
@@ -92,14 +93,35 @@ void FVehicleMonitorTask(void * p_arg) {
 	bool course_active = false;
 	bool led1_blinking = false;
 	bool led0_blinking = false;
-	float slip=.1, friction, accel_cent, gate_heading;
+	vect_t old_p, diff_p;
+	float isTurning;
+	float dist_inc = 0, v_mag;
+	float slip, gate_heading;
 	while(1) {
 
 		OSSemPend(&monitor_wakeup_sem, 0,OS_OPT_PEND_BLOCKING,0,&err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+		v_mag = vect_mag(vehicle_model.v);
+		isTurning = capsense_turn_value;
 
         //check slip parameter
 		//TODO: implement
+		if (isTurning) {
+			if (fabs(vehicle_model.vehicle->slipSpeed / isTurning) < v_mag)
+				slip = -1; //error
+			else if (v_mag > (fabs(vehicle_model.vehicle->slipSpeed / isTurning)*0.6  ) ){
+				slip = 0.1; //warning
+			}
+			else {
+				slip = 10; //no warning;
+			}
+		}
+		else {
+			slip = 10; //no warnign.
+		}
+
+//		friction = road_friction_coeff*DEFAULT_MU* G
+		// accel_cent = pow(v_mag,2) / radius
 //		slip = friction - accel_cent;
         //send warning to LED sem if warning
 		if (slip < 0) {
@@ -141,7 +163,10 @@ void FVehicleMonitorTask(void * p_arg) {
 		}
 
 		gate_heading = course_headings[waypoint_index-ROAD_GEN_WP_BUFFER_SIZE];
-		if (gate_heading < M_PI_2 && gate_heading >= 0.) {
+		if (gate_heading > 7*M_PI_4) {
+			gate_heading -= M_TWOPI;
+		}
+		if (gate_heading < M_PI_4 && gate_heading >= -M_PI_4) {
 			//quadrant 1
 			//second part of this if statement is limitting the window we can activate, so that it is not a pillar that extends to end of screen.
 			if (vehicle_model.p.y < (tan(gate_heading)*(vehicle_model.p.x - active_wp.x) + active_wp.y) && (vehicle_model.p.y > (tan(gate_heading)*(vehicle_model.p.x - active_wp.x) + active_wp.y) - 5)) {
@@ -163,7 +188,7 @@ void FVehicleMonitorTask(void * p_arg) {
 			}
 
 		}
-		else if (gate_heading >= M_PI_2 && gate_heading < M_PI) {
+		else if (gate_heading >= M_PI_4 && gate_heading < 3*M_PI_4) {
 			//quadrant 2
 			if (vehicle_model.p.x > ((cos(gate_heading)*(vehicle_model.p.y - active_wp.y)/sin(gate_heading))+active_wp.x) && (vehicle_model.p.x < ((cos(gate_heading)*(vehicle_model.p.y - active_wp.y)/sin(gate_heading))+active_wp.x) + 5)) {
 				// we are "right of gate", check if y is in bounds
@@ -183,7 +208,7 @@ void FVehicleMonitorTask(void * p_arg) {
 				}
 			}
 		}
-		if ((gate_heading < (3*M_PI_2)) && (gate_heading >= M_PI)) {
+		else if ((gate_heading >= (3*M_PI_4)) && (gate_heading < 5*M_PI_4)) {
 			//quadrant 3
 			if (vehicle_model.p.y > (tan(gate_heading)*(vehicle_model.p.x - active_wp.x) + active_wp.y) && (vehicle_model.p.y < (tan(gate_heading)*(vehicle_model.p.x - active_wp.x) + active_wp.y) + 5)) {
 				// means y has crossed gate, now check x
@@ -204,10 +229,10 @@ void FVehicleMonitorTask(void * p_arg) {
 			}
 
 		}
-		else if (gate_heading >= 3*M_PI_2 && gate_heading < M_TWOPI) {
+		else if (gate_heading >= 5*M_PI_4 && gate_heading < 7*M_PI_4) {
 			//quadrant 4
-			if ((vehicle_model.p.x < ((cos(gate_heading)*(vehicle_model.p.x - active_wp.y)/sin(gate_heading))+active_wp.x)) && (vehicle_model.p.x > ((cos(gate_heading)*(vehicle_model.p.x - active_wp.y)/sin(gate_heading))+active_wp.x) - 5)) {
-				// we are "right of gate", check if y is in bounds
+			if ((vehicle_model.p.x < ((cos(gate_heading)*(vehicle_model.p.y - active_wp.y)/sin(gate_heading))+active_wp.x)) && (vehicle_model.p.x > ((cos(gate_heading)*(vehicle_model.p.y - active_wp.y)/sin(gate_heading))+active_wp.x) - 5)) {
+				// we are "left of gate", check if y is in bounds
 				if ((vehicle_model.p.y > (active_wp.y + sin(gate_heading)*course.RoadWidth/2)) && (vehicle_model.p.y < (active_wp.y - sin(gate_heading)*course.RoadWidth/2))) {
 					if(!course_active)
 						course_active = true;
@@ -248,7 +273,11 @@ void FVehicleMonitorTask(void * p_arg) {
 		if (vect_mag(vehicle_model.v) > stats.max_speed) {
 			stats.max_speed = vect_mag(vehicle_model.v);
 		}
-		//TODO: check timing
+
+		diff_p = vect_plus(vehicle_model.p, vect_mult(old_p, -1));
+		old_p = vehicle_model.p;
+		dist_inc = vect_mag(diff_p);
+		stats.distance_travelled += dist_inc;
 		stats.time_on_course += MONITOR_TASK_PERIOD;
 
 		//

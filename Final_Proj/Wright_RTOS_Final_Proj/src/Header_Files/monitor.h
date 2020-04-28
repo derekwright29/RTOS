@@ -24,6 +24,7 @@ typedef enum FailModes {
 typedef struct {
     float max_speed;
     float time_on_course;
+    float distance_travelled;
     bool success;
     failure_t cause_of_fail;
 } stats_t;

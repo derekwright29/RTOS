@@ -7,11 +7,16 @@
 
 
 const int_vect_t Sparse_R[20] = SPARSE_R_WAYPOINTS;
-const int_vect_t FlyingQ[100] = FLYING_Q_WAYPOINTS;
+const int_vect_t Flying_Q[20] = FLYING_Q_WAYPOINTS;
+const int_vect_t Sharp_W[20] = SHARP_W_WAYPOINTS;
 
 const float Sparse_R_Headings[20] = SPARSE_R_HEADINGS;
+const float Flying_Q_Headings[20] = FLYING_Q_HEADINGS;
+const float Sharp_W_Headings[20] = SHARP_W_HEADINGS;
 
-road_description_t course = ROAD_DESC_SPARSE_R_DEFAULT;
+
+road_description_t course;
+road_description_t fq_course = ROAD_DESC_SPARSE_R_DEFAULT;
 float course_headings[MAX_NUM_WAYPOINTS];
 road_condition_t road_cond = ROAD_CONDITION_DEFAULT;
 uint16_t waypoint_index;

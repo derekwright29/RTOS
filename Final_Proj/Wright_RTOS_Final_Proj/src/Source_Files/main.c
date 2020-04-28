@@ -96,8 +96,8 @@ volatile uint8_t butt0=1, butt1=1;	// values go to 0 when button is pressed; 1 w
 volatile uint32_t msticks = 0; // gives 4 billion some milliseconds. I do not account for wrapping...
 
 
-extern vehicle_description_t vehicle_desc;
-extern road_condition_t road_cond;
+//extern vehicle_description_t vehicle_desc;
+//extern road_condition_t road_cond;
 /*
 *********************************************************************************************************
 *********************************************************************************************************
@@ -225,9 +225,9 @@ static  void  MainStartTask (void  *p_arg)
 
     //simulate menu task
 //    vehicle_desc = (vehicle_description_t) VEHICLE_DESC_STRUCT_DEFAULT;
-    course = ROAD_DESC_SPARSE_R_DEFAULT;
-    memcpy(course_headings, Sparse_R_Headings, course.NumWaypoints*sizeof(float));
-    road_cond = ASPHALT;
+//    course = ROAD_DESC_SPARSE_R_DEFAULT;
+//    memcpy(course_headings, Sparse_R_Headings, course.NumWaypoints*sizeof(float));
+//    road_cond = ASPHALT;
 
 	/* Create OS Constructs Necessary for given tasks */
 	create_vehicle_flags();

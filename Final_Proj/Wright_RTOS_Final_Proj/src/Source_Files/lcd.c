@@ -78,7 +78,7 @@ void LCDTask(void *p_arg) {
 	int16_t disp_vehx;
 	int16_t disp_vehy;
 	float veh_spd;
-	float arrow_angle;
+	float arrow_angle, last_angle=0;
 	float lcd_angle_offset = 90;
 	lcd_init();
 	while(1) {
@@ -117,6 +117,10 @@ void LCDTask(void *p_arg) {
 		}
 
 		arrow_angle = (vehicle_model.az * RAD2DEG) + lcd_angle_offset;
+		if(fabs(arrow_angle - last_angle) > M_PI_2) {
+			arrow_angle = arrow_angle;
+		}
+		last_angle = arrow_angle;
 
 		//remap model coordinates to LCD coordinates.
 		disp_vehy = veh_y;

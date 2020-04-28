@@ -14,20 +14,21 @@ vehicle_description_t truck = VEHICLE_DESC_STRUCT_TRUCK;
 vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_applied, float turn) {
 	RTOS_ERR err;
 	bool turning = false;
-	float last_az = -M_PI_2;
 
 	int8_t accel = power_applied > 0 ? 1 : (power_applied == 0 ? 0 : -1);
-
 
 	OSSchedLock(&err);
     vehicle_warning_t warning = 0;
     vect_t ac; //centripetal accel
     vect_t v_inc; // a*dt
     vect_t p_inc; // v*dt
+    float last_az = course.StartAz;
     float radius = (float)(p_model->vehicle->TurnRadius) / fabs(turn);
+    float road_accel_multiplier, road_turn_multiplier=1, road_friction_coeff;
     float v_mag = vect_mag(p_model->v);
     vect_orth_ref_angle_t turn_dir = turn < 0 ? LEFT_NINETY : RIGHT_NINETY;
     vect_t af;
+    get_road_params(&road_accel_multiplier, &road_turn_multiplier, &road_friction_coeff);
     if ((v_mag < 0.001) && (power_applied == 0)) {
     	af = (vect_t) {0,0};
     }
@@ -36,8 +37,10 @@ vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_app
     	//ramp down
     	af = vect_parallel(p_model->v, v_mag * -0.1);
     }
-    else
-    	af = vect_parallel(vect_get_unitvector(p_model->az), accel*p_model->vehicle->PowerDelta / p_model->vehicle->Mass);// - DEFAULT_MU* G);
+    else {
+    	//road conditions affect
+    	af = vect_parallel(vect_get_unitvector(p_model->az), road_accel_multiplier*accel*p_model->vehicle->PowerDelta / p_model->vehicle->Mass - road_friction_coeff*DEFAULT_MU* G);
+    }
     if (turn == 0) {
     	v_inc = vect_mult(af,PHYS_MODEL_TIME_STEP);
     }
@@ -58,30 +61,12 @@ vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_app
     }
     p_model->p = vect_plus(p_model->p, p_inc);
 
-    if (turning && !power_applied){// for friction: && (vect_mag(af) > 0)) {
+    if (turning && !power_applied && (vect_mag(af) > 0)) {
 
-    	p_model->v = vect_parallel(p_model->v, v_mag); //* FRICTION_TURN_FUDGE_FACTOR
+    	p_model->v = vect_parallel(p_model->v, v_mag* FRICTION_TURN_FUDGE_FACTOR * road_turn_multiplier); //
     }
-
-//    float friction = get_friction (p_model->road, p_model->vehicle->TireType);
-//    if (vect_mag(p_model->v) == 0. && vect_mag(p_model->forw_a) == 0. && (power_applied != 0)) {
-//        //needs a kick
-//    	vect_t u_vect = vect_LCD_get_unitvector(p_model->az*M_PI);
-//        p_model->v = u_vect;
-//    }
-//    else {
-    	//new accel in direction of motion is (force applied - friction force) / mass
-//        new_forw_a = vect_parallel(vect_get_unitvector(p_model->az), power_applied*p_model->vehicle->PowerDelta / p_model->vehicle->Mass); //- friction* G*v_mag);
-//    }
-
-//    float slip_value = sqrt(pow(vect_mag(new_forw_a),2) + pow(vect_mag(new_turn_a),2));
-//    warning |= check_slip(slip_value, friction);
-
-
     //update p_model
 
-
-//    vect_t v_inc = vect_mult(vect_plus(p_model->forw_a, p_model->turn_a), PHYS_MODEL_TIME_STEP);
     if(vect_mag(p_model->turn_a))
     p_model->v = vect_parallel(vect_plus(p_model->v, v_inc), vect_mag(p_model->v));
 
@@ -90,14 +75,13 @@ vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_app
     	p_model->v = vect_parallel(p_model->v, p_model->vehicle->MaxSpeed);
 
     //az is inherently encoded in velocity vector, so just grab it from there.
-    if (vect_mag(p_model->v) > 0.001) {
+    if (v_mag < 0.01) {
+    	p_model->az = last_az;
+    }
+    else {
     	p_model->az = determine_az(p_model);
     }
-    else if (vect_mag(p_model->v) < 0.001 && v_mag > 0.001) // is velocity was useful, store which direction we were pointing.
-    	last_az = p_model->az;
-    else
-    	p_model->az = last_az;
-    //Not doing 3D
+    last_az = p_model->az;
     p_model->el = 0.0;
     p_model->roll = 0.0;
     OSSchedUnlock(&err);
@@ -187,7 +171,7 @@ void PhysicsModelTask(void* p_arg) {
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 
 		//delay
-		OSTimeDly((OS_TICK)(PHYS_MODEL_TIME_STEP*1000.), OS_OPT_TIME_PERIODIC, &err);
+		OSTimeDly((OS_TICK)(PHYS_MODEL_PERIOD_TICKS), OS_OPT_TIME_PERIODIC, &err);
 		APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
 	}
 
@@ -230,13 +214,39 @@ vehicle_warning_t check_slip(float slip_f, float friction_f) {
 }
 
 float determine_az(phys_model_t *p_model) {
+	float az;
 	if (p_model->v.x > 0)
-		return vect_get_heading(p_model->v); // quadrants I and II
+		az = vect_get_heading(p_model->v); // quadrants I and II
 	else {
-		return M_PI + vect_get_heading(p_model->v); // quadrants III and IV
+		az = M_PI + vect_get_heading(p_model->v); // quadrants III and IV
 	}
+	if (az > 0)
+		return az;
+	else
+		return (az + M_TWOPI);
 }
 
+void get_road_params(float * accel_mult, float *turn_mult, float* fric_coeff) {
+	switch (vehicle_model.road) {
+		case GRAVEL:
+				*accel_mult = 0.7;
+				*turn_mult =  0.8;
+				*fric_coeff = 1.3;
+				break;
+			case ICE:
+				*accel_mult = 0.4;
+				*turn_mult = 1;
+				*fric_coeff = 1.6;
+				break;
+		case ASPHALT:
+		default:
+			*accel_mult = 1.;
+			*turn_mult =  1.;
+			*fric_coeff = 1;
+			break;
+	}
+	return;
+}
 
 
 

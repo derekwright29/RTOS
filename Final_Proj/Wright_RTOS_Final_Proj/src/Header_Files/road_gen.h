@@ -70,7 +70,7 @@ extern float course_headings[MAX_NUM_WAYPOINTS];
 
 extern const int_vect_t Sparse_R[20];
 extern const float Sparse_R_Headings[20];
-#define SparseRStartPos						(vect_t) {5., 120.}
+#define SparseRStartPos						(vect_t) {10., 127.}
 #define SparseRStartAz						(float)-1.57079632679489661923
 
 extern const int_vect_t Flying_Q[20];

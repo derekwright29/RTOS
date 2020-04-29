@@ -332,7 +332,7 @@ void write_menu(uint8_t screen, uint8_t selection, bool select_active) {
 			break;
 		case CHOOSE_ROAD_WIDTH:
 			GLIB_clear(&menu_context);
-			GLIB_drawString(&menu_context, "Choose your Road Width:", 20,
+			GLIB_drawString(&menu_context, "Choose Road Width:", 20,
 					  5,
 					  5,
 					  0);

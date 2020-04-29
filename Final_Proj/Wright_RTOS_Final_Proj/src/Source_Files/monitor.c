@@ -127,11 +127,13 @@ void FVehicleMonitorTask(void * p_arg) {
 		if (slip < 0) {
 			//send game_over sem to Menu if game over
 			GPIO_PinOutSet(LED0_port, LED0_pin);
-			OSFlagPost(&game_over_flag,
-					FAIL_SLIP,
-					OS_OPT_POST_FLAG_SET,
-					&err);
-			APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+			if (course_active) {
+				OSFlagPost(&game_over_flag,
+						FAIL_SLIP,
+						OS_OPT_POST_FLAG_SET,
+						&err);
+				APP_RTOS_ASSERT_DBG((RTOS_ERR_CODE_GET(err) == RTOS_ERR_NONE), 1);
+			}
 		}
 		else if (slip < MONITOR_SLIP_THRESHOLD) {
 			//start LED toggling

@@ -35,7 +35,7 @@ vehicle_warning_t phys_model_take_step(phys_model_t * p_model, int16_t power_app
     //slow to stop method
     else if ((v_mag < 4) && (power_applied == 0)) {
     	//ramp down
-    	af = vect_parallel(p_model->v, v_mag * -0.1);
+    	af = vect_parallel(p_model->v, v_mag * -1);
     }
     else {
     	//road conditions affect

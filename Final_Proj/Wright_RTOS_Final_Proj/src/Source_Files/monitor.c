@@ -119,11 +119,6 @@ void FVehicleMonitorTask(void * p_arg) {
 		else {
 			slip = 10; //no warnign.
 		}
-
-//		friction = road_friction_coeff*DEFAULT_MU* G
-		// accel_cent = pow(v_mag,2) / radius
-//		slip = friction - accel_cent;
-        //send warning to LED sem if warning
 		if (slip < 0) {
 			//send game_over sem to Menu if game over
 			GPIO_PinOutSet(LED0_port, LED0_pin);

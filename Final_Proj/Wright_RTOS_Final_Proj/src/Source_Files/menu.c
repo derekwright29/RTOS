@@ -90,6 +90,17 @@ void MenuTask(void *p_arg) {
 						}
 
 						break;
+					case CHOOSE_ROAD_WIDTH:
+						if (selection == 0){
+							course.RoadWidth = 10;
+						}
+						else if (selection == 1) {
+							course.RoadWidth = 20;
+						}
+						else {
+							course.RoadWidth = 30;
+						}
+						break;
 				}
 				screen++;
 				selectIsActive = false;
@@ -318,6 +329,25 @@ void write_menu(uint8_t screen, uint8_t selection, bool select_active) {
 											CENTER_X - GLIB_FONT_WIDTH*1,
 							                  80,
 							                  0);
+			break;
+		case CHOOSE_ROAD_WIDTH:
+			GLIB_clear(&menu_context);
+			GLIB_drawString(&menu_context, "Choose your Road Width:", 20,
+					  5,
+					  5,
+					  0);
+			GLIB_drawString(&menu_context, "10", 7,
+											CENTER_X - GLIB_FONT_WIDTH*1,
+											  40,
+											  0);
+			GLIB_drawString(&menu_context, "20", 10,
+											CENTER_X - GLIB_FONT_WIDTH*3,
+											  60,
+											  0);
+			GLIB_drawString(&menu_context, "30", 5,
+											CENTER_X - GLIB_FONT_WIDTH*1,
+											  80,
+											  0);
 			break;
 		default:
 			// error: reset to welcome
